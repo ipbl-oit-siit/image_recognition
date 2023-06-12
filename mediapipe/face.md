@@ -1,37 +1,50 @@
 # Tutorials for MediaPipe Face
 
+[back to the top page](../README.md)
+
+---
+
 ## Objectives
 This page explains how to make a program for face detection and get information.
 
 ## Prerequisite
 You have to finish [MediaPipe Hands](../mediapipe/hands.md).
-## Face landmark model
-By using [MediaPipe](https://google.github.io/mediapipe/), we can obtain 3D position information of 468 landmarks as shown by the red marker in the following figure.<br>
-<image src="../image/face_mesh_android_gpu.gif" width="20%" height="20%">
-  <image src="../image/face_landmark2.png" width="38%" height="38%"><br>
 
-## Practice[Display all face landmarks]
+## ![#f03c15](https://via.placeholder.com/15/f03c15/000000?text=+) Face landmark model
+By using [MediaPipe Face Landmark](https://developers.google.com/mediapipe/solutions/vision/face_landmarker#get_started), we can obtain 3D position information of 468 landmarks as shown by the red marker in the following figure.<br>
+<image src="../image/face_mesh_android_gpu.gif" width="20%" height="20%">
+  <image src="https://developers.google.com/static/mediapipe/images/solutions/face_landmarker_keypoints.png" width="28%" height="28%"><br>
+
+## :o:Practice[Display all face landmarks]
   Get face landmarks and display them.
-  - Execute "vscode.bat" file, and open the VSCode.
-  - Make a python file `myface.py`. 
+  - Execute `py23_ibpl_start.bat` file, and open the VSCode.
+  - Make a python file `myfacelmk.py`. 
   - Type the following sample code. It's OK copy and paste.
 
-### Sample code
+### `myfacelmk.py`
 ```python
+import os
+os.environ["OPENCV_VIDEOIO_MSMF_ENABLE_HW_TRANSFORMS"] = "0"
 import cv2
-import mediapipe as mp
-import time
 import numpy as np
-mp_drawing = mp.solutions.drawing_utils
-mp_face_mesh = mp.solutions.face_mesh
+import time
+from MediapipeFaceLandmark import MediapipeFaceLandmark as FaceLmk
 
 device = 0 # cameera device number
 
 def getFrameNumber(start:float, fps:int):
     now = time.perf_counter() - start
     frame_now = int(now * 1000 / fps)
-
     return frame_now
+
+def my_draw_face(image, Face, id_face):
+    landmark_point = []
+    for i in range(Face.num_landmark_points):
+        landmark_point.append(Face.get_landmark(id_face, i))
+
+    for i in range(len(landmark_point)):
+        # Convert the obtained landmark values x, y, z to the coordinates on the image
+        cv2.circle(image, (int(landmark_point[i][0]), int(landmark_point[i][1])), 1, (0, 255, 0), 1)
 
 def main():
     # For webcam input:
@@ -47,14 +60,10 @@ def main():
     start = time.perf_counter()
     frame_prv = -1
 
-    drawing_spec = mp_drawing.DrawingSpec(thickness=1, circle_radius=1)
-
-    face_mesh = mp_face_mesh.FaceMesh(
-    min_detection_confidence=0.5,
-    min_tracking_confidence=0.5)
+    Face = FaceLmk()
 
     while cap.isOpened():
-        frame_now=getFrameNumber(start, fps)
+        frame_now = getFrameNumber(start, fps)
         if frame_now == frame_prv:
             continue
         frame_prv = frame_now
@@ -66,68 +75,61 @@ def main():
             continue
 
         # Flip the image horizontally for a later selfie-view display, and convert
-        # the BGR image to RGB.
-        frame = cv2.cvtColor(cv2.flip(frame, 1), cv2.COLOR_BGR2RGB)
-        # To improve performance, optionally mark the image as not writeable to
-        # pass by reference.
-        frame.flags.writeable = False
-        results = face_mesh.process(frame)
+        flipped_frame = cv2.flip(frame, 1)
+
+        Face.detect(flipped_frame)
 
         # Draw the face mesh annotations on the image.
-        frame.flags.writeable = True
-        frame = cv2.cvtColor(frame, cv2.COLOR_RGB2BGR)
-        if results.multi_face_landmarks:
-            for face_landmarks in results.multi_face_landmarks:
-                #mp_drawing.draw_landmarks(image, face_landmarks, mp_face_mesh.FACE_CONNECTIONS)
-                my_draw_face(frame, face_landmarks)
-        cv2.imshow('MediaPipe FaceMesh', frame)
-        if cv2.waitKey(5) & 0xFF == 27:
+        for i in range(Face.num_detected_faces):
+                my_draw_face(flipped_frame, Face, i)
+        cv2.imshow('MediaPipe FaceLandmark', flipped_frame)
+ 
+        # We have some visualize function (visualize all face landmarks)
+        # annotated_frame = Face.visualize(flipped_frame)
+        # annotated_frame = Face.visualize_with_mp(flipped_frame)
+        # cv2.imshow('MediaPipe FaceLandmark', annotated_frame)
+
+        if cv2.waitKey(5) & 0xFF == ord('q'):
             break
     cap.release()
-
-def my_draw_face(image, landmarks):
-    image_width, image_height = image.shape[1], image.shape[0]
-    landmark_point = []
-
-    for index, landmark in enumerate(landmarks.landmark):
-        if landmark.visibility < 0 or landmark.presence < 0:
-            continue
-        
-        # Convert the obtained landmark values x, y, z to the coordinates on the image
-        landmark_x = min(int(landmark.x * image_width), image_width - 1)
-        landmark_y = min(int(landmark.y * image_height), image_height - 1)
-        landmark_z = landmark.z
-
-        landmark_point.append(np.array([landmark_x, landmark_y, landmark_z], dtype=int))
-
-    if len(landmark_point) != 0:
-        for i in range(0, len(landmark_point)):
-            cv2.circle(image, (int(landmark_point[i][0]),int(landmark_point[i][1])), 1, (0, 255, 0), 1)
 
 if __name__ == '__main__':
     main()
 ```
   - Run the sample code with input the following command in the terminal.
 ```
-    C:\\...\code> python myface.py
+    C:\\...\SourceCode> python myfacelmk.py
 ``` 
   <image src="../image/face.png" width="30%" height="30%"><br>
-  - If you want to stop this program, press "Esc" key while the preview window is active.
+  - If you want to stop this program, press `q` key while the preview window is active.
 
 ### How to refer all the landmarks stored in the list
- - Draw by referring to all the landmarks stored in the list by the following code.
+- Draw by referring to all the landmarks of the 'id_face'-th face by the following code.
 ```python
-    for i in range(0, len(landmark_point)):
-        cv2.circle(image, (int(landmark_point[i][0]),int(landmark_point[i][1])), 1, (0, 255, 0), 1)
+    for i in range(len(landmark_point)):
+        cv2.circle(image, (int(landmark_point[i][0]), int(landmark_point[i][1])), 1, (0, 255, 0), 1)
 ```
 
-## Exercise[Face1]
- - Calculate the center of gravity of all face landmarks, and draw red circle.<br>
+## :o:Exercise[Face1]
+- Calculate the center of gravity of all face landmarks, and draw red circle.<br>
     <image src="../image/q1_face.png" width="30%" height="30%"><br>
+### sample code
+```python
+def my_draw_cog_point(image, Face, id_face):
+    landmark_point = []
+    cog_point = np.zeros((3,), dtype=int)
+    for i in range(Face.num_landmark_points):
+        landmark_point.append(Face.get_landmark(id_face, i))
+        cog_point = cog_point + landmark_point[i]
+    # calculate the center of gravity point and cast type (float -> int)
+    cog_point = (cog_point / Face.num_landmark_points).astype(int)
+    cv2.circle(image, (cog_point[0], cog_point[1]), 5, (0, 0, 255), 2)
 
-### :o:Checkpoint
-It's OK, you can finish the Exercise[Face1].
+    txt = '({:d}, {:d})'.format(cog_point[0], cog_point[1])
+    wrist_point_for_text = (cog_point[0]-20, cog_point[1]-20)
+    cv2.putText(image, org=wrist_point_for_text, text=txt, fontFace=cv2.FONT_HERSHEY_SIMPLEX, fontScale=1, color=(0, 0, 255), thickness=2, lineType=cv2.LINE_4)
+```
 
 ---
 
-[README](../README.md)
+[back to the top page](../README.md)

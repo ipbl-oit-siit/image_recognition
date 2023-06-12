@@ -1,23 +1,28 @@
 # Image processing basics for video image
 
+[back to the top page](../README.md)
+
+---
+
 ## Objectives
 - This page explains how to process the video image in Python 3 with your camera device.
 - This page explains how to detect the face/facial landmarks with OpenCV.
 - This page explains how to process the face/facial landmarks detection on the video image.
 
 ## Prerequisite
-- Open the VS Code by the running the `vscode.bat`. Confirm that the current directory shown in the terminal window is `code`.
-- The python program (.py) has to be made in `code` folder. And all image files are saved (downloaded) in `imgs` folder and read from there. 
+- Open the VS Code by the running the `py23_ipbl_start.bat`. Confirm that the current directory shown in the terminal window is `SourceCode`.
+- The python program (.py) has to be made in `SourceCode` folder. And all image files are saved (downloaded) in `data` folder and read from there. 
 - You can run a python program with the input of the following command in the terminal.
     ```
-    C:\\...\code> python XXX.py
+    C:\\...\SourceCode> python XXX.py
     ```
-## Sample of simple video-image processing
+## ![#f03c15](https://via.placeholder.com/15/f03c15/000000?text=+) Sample of simple video-image processing
 
 ### video_viewer1.py
 ```python
-# Sample of "Simple video-image processing"
-# -*- coding: utf-8 -*-
+import os
+# https://github.com/opencv/opencv/issues/17687
+os.environ["OPENCV_VIDEOIO_MSMF_ENABLE_HW_TRANSFORMS"] = "0"
 import cv2
 
 device = 0 # camera device number
@@ -35,7 +40,7 @@ def main():
     while cap.isOpened() :
         ret, frame = cap.read()
 
-        if cv2.waitKey(1) & 0xFF == 27:
+        if cv2.waitKey(1) & 0xFF == ord('q'):
             break
         cv2.imshow("video", frame)
 
@@ -51,7 +56,7 @@ if __name__ == '__main__':
 - A value of grobal variable `device` in `video_viewer1.py` is the device number of the camera starting from 0. 
   - It can be read the movie file when a value of the `device` is set a movie file name, like the following.
   ```python
-  device = "moviefile.avi"
+  device = "./data/moviefile.avi"
   ```
 - The following codes in `video_viewer1.py` are in order to open the video stream and get the properties of the video-image. 
     | code | comment |
@@ -67,11 +72,11 @@ if __name__ == '__main__':
     :--- | :---
     | cap.read() | 1st return value is a boolean value for whether success in reaing a frame <br> 2nd return value is the list of the pixel values in a frame |
     - `cap.read()` function is called by every loop in `video_viewer1.py`, independent of the FPS. 
-    - The time of the loop is costed the sum of the processing time with `cap.read()` and any other functions in the while block and the sleep time with `cv2.waitKey()` function(1m sec).   
+    - The time of the loop is costed the sum of the processing time with `cap.read()` and any other functions in the while block and the sleep time with `cv2.waitKey()` function (1m sec).   
         ```python
             while cap.isOpened() :
                 ret, frame = cap.read()
-                if cv2.waitKey(1) & 0xFF == 27:
+                if cv2.waitKey(1) & 0xFF == ord('q'):
                     break
                 cv2.imshow("video", frame)
         ```
@@ -79,48 +84,27 @@ if __name__ == '__main__':
 - In the movie file, the returned frame from `cap.read()` function is in order, independent on the time of function calling.
     | Device | The number of the returned frame |
     :--- | :--- 
-    | camera | t + int( time of the "read" function calling / fps) |
-    | movie file | t + 1 |
+    | camera | `t + int( time of the "read" function calling / fps)` |
+    | movie file | `t + 1` |
      
 ### Wait for the user's key input
 - `cv2.waitKey()` function sleeps the process(thread) in order to wait for the user's key input during a value of the argument (m sec).
-- It exits the while loop when the user presses the `Esc` key.
-- `Esc` key is coded at 27.
+- It exits the while loop when the user presses the `q` key.
 
 ### :o:Practice
-- You should be copy [`video_viewer1.py`](#video_viewer1py) with the `clipboard` button and paste it to the VS Code, and save it as  `video_viewer1.py` in the `code` folder.
-- If there is only one camera on your device, including the built-in, the number of your camera device is 0.
-<!-- - You can check which device number that the camera is connected is with running the following program (`camera_detect.py`).
-    ```python
-    import cv2
-
-    for i in range(0, 10): 
-        cap = cv2.VideoCapture(i)
-        if cap.isOpened(): 
-            print("VideoCapture(", i, ") : Found")
-            cap.release() 
-        else:
-            print("VideoCapture(", i, ") : None")
-    cap.release() 
-    ```
-    - It can be ignored if a warning message like the following will appear.
-         ```
-         [ WARN:0] global C:\Users\appveyor\AppData\Local\Temp\1\pip-req-build-sxpsnzt6\opencv\modules\videoio\src\cap_msmf.cpp (435) `anonymous-namespace'::SourceReaderCB::~SourceReaderCB terminating async callback
-         ```
-    - It costs a few minutes to be run the program depending on the environment of your device. -->
+- You should be copy [`video_viewer1.py`](#video_viewer1py) with the `clipboard` button and paste it to the VS Code, and save it as  `video_viewer1.py` in the `SourceCode` folder.
+- If there is only one camera on your device, including the built-in, the number of your camera device is `0`.
 - Set a value of the global variable `device` to adapt your PC environment.
 - Run the sample code.
     - It can be ignored if a warning message like the following will appear.
          ```
          [ WARN:0] global C:\Users\appveyor\AppData\Local\Temp\1\pip-req-build-sxpsnzt6\opencv\modules\videoio\src\cap_msmf.cpp (435) `anonymous-namespace'::SourceReaderCB::~SourceReaderCB terminating async callback
          ```
-- Check the video window is came up, and the program is terminated with the `Esc` key press.
-
-### :o:Checkpoint (Sample of simple video-image processing)
-- It's OK, you can show the video image with your camera device.
+- Check the video window is came up, and the program is terminated with the `q` key press.
 
 
-## Sample of video-image processing adapted the frame rate
+
+## ![#f03c15](https://via.placeholder.com/15/f03c15/000000?text=+) Sample of video-image processing adapted the frame rate
 
 ### Add the function to calculate the frame number from the processing time
 - Define the function for the frame number calculation in order to avoid to be called `cap.read()` function multiple times, independent on the FPS.
@@ -128,8 +112,8 @@ if __name__ == '__main__':
 
 ### video_viewer2.py
 ```python
-# Sample of video-image processing adapted the frame rate
-# -*- coding: utf-8 -*-
+import os
+os.environ["OPENCV_VIDEOIO_MSMF_ENABLE_HW_TRANSFORMS"] = "0"
 import cv2
 import time
 
@@ -139,7 +123,6 @@ device = 0 # camera device number
 def getFrameNumber(start:float, fps:int):
     now = time.perf_counter() - start
     frame_now = int(now * 1000 / fps)
-
     return frame_now
 
 # main----------------------------------------------------
@@ -163,7 +146,7 @@ def main():
 
         ret, frame = cap.read()
 
-        if cv2.waitKey(1) & 0xFF == 27:
+        if cv2.waitKey(1) & 0xFF == ord('q'):
             break
         cv2.imshow("video", frame)
 
@@ -180,21 +163,21 @@ if __name__ == '__main__':
 - Which program, [`video_viewer2.py`](#video_viewer2py) or [`video_viewer1.py`](#video_viewer1py), is better to use is dependent on the situation.
 - There is a more simple way for adapting the frame rate that a value of the argument in `cv2.waitKey()` function in the [`video_viewer1.py`](#video_viewer1py) is replaced to the time until the next frame is provided, like the following.
   ```python
-  if cv2.waitKey(int(1000/fps)) & 0xFF == 27:
+  if cv2.waitKey(int(1000/fps)) & 0xFF == ord('q'):
   ```
 
-### :o:Exercise (selfie.py)
+### :o:Exercise (`selfie.py`)
 - Try to make "Let's selfie program" (`selfie.py`) by modifying the [`video_viewer1.py`](#video_viewer1py) or the [`video_viewer2.py`](#video_viewer2py).
 - Save a video frame to a still image file at the time when the user presses `s` key.
     | Key | Details | 
     :---: | :---
-    | Esc | The program is terminated. |
+    | q | The program is terminated. |
     | s | The video frame is saved as a still image. |
 
 - Here is the hint code.  
   ```python
   key = cv2.waitKey(1)
-  if key & 0xFF == 27:
+  if key & 0xFF == ord('q'):
       break
   elif key & 0xFF == ord('s'):
       cv2.imshow("video", frame)
@@ -204,18 +187,16 @@ if __name__ == '__main__':
 
     | code | comment |
     :--- | :---
-    | cv2.imwrite("name", variable) | 1st argument is the file name(path) of the image which is saved. <br>2nd argument is the variable of the image. | 
+    | `cv2.imwrite("name", variable)` | 1st argument is the file name(path) of the image which is saved. <br>2nd argument is the variable of the image. | 
 
   - The following function in the hint code is in order to compare a received key with a key that you want to detect.
 
     | code | comment |
     :--- | :---
-    | ord('a caracter') | It's changed a character in the argument to the number of Unicode. |
+    | `ord('a caracter')` | It's changed a character in the argument to the number of Unicode. |
 
-- If your program is correct, you will be able to find a jpeg file named `selfie.jpg` in `imgs` folder when you press `s` key.
+- If your program is correct, you will be able to find a jpeg file named `selfie.jpg` in `data` folder when you press `s` key.
 
-### :o:Checkpoint (Exercise (selfie.py))
-- It's OK, if you can confirm that the `selfie.jpg` was saved correctly.
 <!--
 ## Appendix: Sample of video-image recorder
 ### Preparation
@@ -289,5 +270,5 @@ if __name__ == '__main__':
 - You can find `video_name` in the `code` folder. 
 -->
 ---
-[README](../README.md)
+[back to the top page](../README.md)
 

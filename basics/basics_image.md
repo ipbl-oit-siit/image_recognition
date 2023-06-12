@@ -1,6 +1,6 @@
 # Image processing basics for static images
 
-[README](../README.md)
+[back to the top page](../README.md)
 
 ---
 
@@ -8,10 +8,10 @@
 - This page explains basics of digital images and image processing with Python3.
 
 ## prerequisite
-- "[Image Processing Environment for iPBL](https://github.com/oit-ipbl/portal/blob/main/setup/python%2Bvscode.md)" has already been installed.
-- The python programs (.py) have to be put under the directory `code`. And the all image files are saved/downloaded in the directory `imgs` and read from there.
+- "[Image Processing Environment for iPBL](https://github.com/ipbl-oit-siit/portal/blob/main/setup/python%2Bvscode.md)" has already been installed.
+- The python programs (.py) have to be put under the directory `SourceCode`. And the all image files are saved/downloaded in the directory `img` and read from there.
 
-## Basics of digital images
+## ![#f03c15](https://via.placeholder.com/15/f03c15/000000?text=+) Basics of digital images
 ### Color (Additive color)
 - Many colors can be created by mixing the primary colors (Blue, Green, Red).<br>
   <image src="../image/Color-additive-mixing.png" height=25% width=25%><br>
@@ -27,21 +27,22 @@
 - Digital color images can be represented by 3 dimensional array.<br>
   <image src="../image/imageArray.png" height=30% width=30%><br>
   Color image array
-- Range of pixel value is 0 to 255 (8bit). Thus, each pixel can create 16,777,216 (=(256)3) colors.
+- Range of pixel value is 0 to 255 (8bit). Thus, each pixel can create 16,777,216 (=(256)^3) colors.
 
 
-## Image processing with Python3
+## ![#f03c15](https://via.placeholder.com/15/f03c15/000000?text=+) Image processing with Python3
 ### Directory structure for Image processing
 - The python programs (.py) have to be put under the directory `SourceCode`. And the all image files are saved/downloaded in the directory `img` and read from there.
 - Directory stucture
-  ```
+  ```text
   +[SourceCode]                   <== work directory ("C:\oit\py23_ipbl\SourceCode")
   |
-  |-+[img]                  <== this directory already exists.
-  | |--Mandrill.png         <== this image already exists. ("C:\oit\py23_ipbl\SourceCode\imgs\Mandrill.png")
+  |-+[data]                  <== this directory already exists.
+  | |--Mandrill.png         <== this image already exists. ("C:\oit\py23_ipbl\SourceCode\data\Mandrill.png")
   | |--xxx.jpg              <== save new image files at this place.
   | |--xxx.png
-  | |--
+  | |--xxx.mp4
+  | |--xxx.avi
   |
   |--test.py                <== this program already exists. ("C:/oit/py23_ipbl/SourceCode/test.py")
   |--testWebcam.py          <== this program already exists.
@@ -67,9 +68,8 @@
       <image src="../image/new_python_file_3.png" height=40% width=40%><image src="../image/new_python_file_4.png" height=50% width=50%>
   - The case that you make a new python file in another directory<br>
     <image src="../image/new_python_file_5.png" height=40% width=40%><image src="../image/new_python_file_6.png" height=35% width=35%>
-- Sample code
+- `sample_basic.py`
   ```python
-  # sample_basic.py
   sum = 0
   for i in range(10):
     sum = sum + i
@@ -99,20 +99,19 @@
   ```
 
 ### Important modules in image processing
-#### numpy (short name: np)
+#### `numpy` (short name: `np`)
 - more information: [numpy docs](https://numpy.org/doc/stable/)
 - This module is the fundamental package for scientific computing.
-  - a powerful N-dimensional array object
+  - a powerful `N`-dimensional array object
   - useful linear algebra, Fourier transform, and random number capabilities
 
 #### Practice[np]
 - Save the following sample code as a python file and execute it. (`C:/oit/py23_ipbl/SourceCode/sample_numpy.py`)
-- Sample code
+- `sample_numpy.py`
   ```python
-  # sample_numpy.py
   import numpy as np
   a = np.zeros((4, 3, 2))  # make zero array whose size is (4,3,2)
-  a[0:2, 1:2, 1] = 1  # Note that, 0:2 means 0 to 1, and 1:2 means 1.
+  a[0:2, 1:2, 1] = 1  # Note that, 0:2 means 0 to (2-1), and 1:2 means 1.
   print(a)
   print(np.average(a))
   print(np.max(a))
@@ -139,18 +138,17 @@
   1.0
   ```
 
-#### cv2 (opencv-python)
-- more information: [OpenCV4.5.5 docs](https://docs.opencv.org/4.5.5/)
+#### `cv2` (opencv-python)
+- more information: [OpenCV4.7.0 docs](https://docs.opencv.org/4.7.0/)
 - This is an open source module for Computer Vision.
 - It has many functions for image processing.
 
 #### Practice[cv2]
 - Save the following sample code as a python file, and execute it. (`C:/oit/py23_ipbl/SourceCode/sample_cv2.py`)
-- Sample code
+- `sample_cv2.py`
   ```python
-  # sample_cv2.py
   import cv2
-  img = cv2.imread('./img/Mandrill.png') # read image file
+  img = cv2.imread('./data/Mandrill.png') # read image file
   if img is None: # maybe Path is wrong
       print("image file is not opened.")
       exit(1)
@@ -164,23 +162,19 @@
   <image src="../image/Mandrill_blur.png" height=50% width=50%>
 - The windows close when you press any key.
 
-#### :o:Checkpoint(basics and important modules)
-- It's O.K., if you can finish the Practice[basic], [np] and [cv2].
-
 ### Script/Function in Python3 and image IO
 - Making a Python script a function improves reusability.
   - Functions can be called by other python programs.
 
-#### Python Script
+#### Python Script `sample_imgIO.py`
   ```python
-  # sample_imgIO.py
   import cv2
 
   # read image file
-  img = cv2.imread('./img/Mandrill.png')
+  img = cv2.imread('./data/Mandrill.png')
 
   # write image file
-  cv2.imwrite('./img/res_scrpt.png', img)
+  cv2.imwrite('./data/res_scrpt.png', img)
 
   # show image file
   cv2.imshow('window name', img)
@@ -188,9 +182,8 @@
   cv2.destroyAllWindows()  # close all windows
   ```
 
-#### Python Function
+#### Python Function `sample_imgIO_func.py`
   ```python
-  # sample_imgIO_func.py
   import cv2
 
   def imageIO(img_name_in, img_name_out):
@@ -202,8 +195,8 @@
       return img
 
   def main():
-      in_name = './img/Mandrill.png' # local
-      out_name = './img/res_func1.png' # local
+      in_name = './data/Mandrill.png' # local
+      out_name = './data/res_func1.png' # local
       img = imageIO(in_name, out_name)
       # show image file
       cv2.imshow('window name', img)
@@ -212,7 +205,7 @@
 
   # The following equation holds when this program file is only executed.
   if __name__ == '__main__':
-      a = 1 # global
+      a = 1 # global variable
       main() # function name is free
   ```
 #### Practice[script/function 1]
@@ -222,19 +215,16 @@
 
 #### Practice[script/function 2]
 - Let's use the function `imageIO` in `sample_imgIO_func.py` on Other python programs!
-- After `Practice[script/function 1]`, Save the following sample code as a python file, and execute it. (`C:/oit/py21/SourceCode/sample_other.py`)
-- Sample code
+- After `Practice[script/function 1]`, Save the following sample code as a python file, and execute it. (`C:/oit/py23_ipbl/SourceCode/sample_other.py`)
+- `sample_other.py`
   ```python
-  # sample_other.py
   import sample_imgIO_func as myImgIO
 
-  myImgIO.imageIO('./img/Mandrill.png', './img/res_func2.png')
+  myImgIO.imageIO('./data/Mandrill.png', './data/res_func2.png')
   ```
 - It's O.K., if the all result images (`res_scrpt.png`, `res_func1.png`, `res_func2.png`) in the directory `img` are the same.
 
-#### :o:Checkpoint(script/function)
-- It's O.K., if you can finish the Practice[script/function 1] and [script/function 2].
 
 ---
 
-[README](../README.md)
+[back to the top page](../README.md)
