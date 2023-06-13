@@ -8,10 +8,10 @@
 This page explains how to make a program for pose detection and get information.
 
 ## Prerequisite
-You have to finish [Image processing basics (1)](../basics/basics_image.md), [Image processing basics (2)](../basics/basics_video.md).
+You have to finish [Image processing basics for static image](../basics/basics_image.md), [Image processing basics for video](../basics/basics_video.md).
 
 ## Pose landmark model
-By using [MediaPipe](https://google.github.io/mediapipe/), we can obtain 3D position information of 33 landmarks as shown by the red marker in the following figure.<br>
+By using [MediaPipe ](https://google.github.io/mediapipe/), we can obtain 3D position information of `33` landmarks as shown by the red marker in the following figure.<br>
 <image src="../image/pose_tracking_full_body_landmarks.png" width="75%" height="75%"><br>
 
 ## :o:Practice[Display all pose landmarks]
