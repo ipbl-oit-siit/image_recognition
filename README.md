@@ -8,18 +8,19 @@
 - The following [Sample programs](#sample-programs) will help you develop more advanced image processing programs. Work with your team members to try out the samples.
 
 # Learning tasks
-- [Image processing basics for static image](basics/basics_image.md)
-- [Image processing basics for video (webcam)](basics/basics_video.md)
+- [Image processing basics for static image](image_processing/basics_image.md)
+- [Image processing basics for video (webcam)](image_processing/basics_video.md)
+- [Image processing advanced](image_processing/advanced.md)
 - Image recognition
-    - [about our Mediapipe Class](https://github.com/ipbl-oit-siit/MediaPipeClass/tree/main)
+    - [about our Mediapipe Class (another repo)](https://github.com/ipbl-oit-siit/MediaPipeClass/tree/main)
         - If you want to know more about Mediapipe specifications, please refer to the specifications of each class linked in the page.
-    - [how to use our Mediapipe Class](https://github.com/ipbl-oit-siit/MediaPipeClass/blob/main/docs/how2use_more.md)
+    - [how to use our Mediapipe Class (another repo)](https://github.com/ipbl-oit-siit/MediaPipeClass/blob/main/docs/how2use_more.md)
         - Please refer to the sample code and check them while actually running the program.
-    - samples
+    - If you would like to know more about how to use each model in detail, please refer to the following.
         - [pose](mediapipe/pose.md)
         - [hand](mediapipe/hand.md)
         - [face](mediapipe/face.md)
-        - [advanced](advanced/advanced.md)
+        - [advanced](mediapipe/advanced.md)
 
 <!-- # Sample Programs
 - [Resizing images](samples/resizing_images.md)

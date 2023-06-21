@@ -8,20 +8,21 @@
 This page explains how to make a program for face detection and get information.
 
 ## Prerequisite
-You have to finish [MediaPipe Hands](../mediapipe/hands.md).
+You have to finish [Image processing basics for static image](../image_processing/basics_image.md), [Image processing basics for video](../image_processing/basics_video.md). Additionally, it is recommended that [MediaPipe Pose](../mediapipe/pose.md) and [MediaPipe Hand](../mediapipe/hand.md) are completed.
+
 
 ## ![#f03c15](https://via.placeholder.com/15/f03c15/000000?text=+) Face landmark model
-By using [MediaPipe Face Landmark](https://developers.google.com/mediapipe/solutions/vision/face_landmarker#get_started), we can obtain 3D position information of 468 landmarks as shown by the red marker in the following figure.<br>
+By using [MediaPipe Face](https://developers.google.com/mediapipe/solutions/vision/face_landmarker#get_started), we can obtain 3D position information of `468` landmarks as shown by the red marker in the following figure.<br>
 <image src="../image/face_mesh_android_gpu.gif" width="20%" height="20%">
   <image src="https://developers.google.com/static/mediapipe/images/solutions/face_landmarker_keypoints.png" width="28%" height="28%"><br>
 
 ## :o:Practice[Display all face landmarks]
   Get face landmarks and display them.
   - Execute `py23_ibpl_start.bat` file, and open the VSCode.
-  - Make a python file `myfacelmk.py`. 
+  - Make a python file `myface.py`.
   - Type the following sample code. It's OK copy and paste.
 
-### `myfacelmk.py`
+### `myface.py`
 ```python
 import os
 os.environ["OPENCV_VIDEOIO_MSMF_ENABLE_HW_TRANSFORMS"] = "0"
@@ -37,14 +38,11 @@ def getFrameNumber(start:float, fps:int):
     frame_now = int(now * 1000 / fps)
     return frame_now
 
-def my_draw_face(image, Face, id_face):
-    landmark_point = []
-    for i in range(Face.num_landmark_points):
-        landmark_point.append(Face.get_landmark(id_face, i))
-
-    for i in range(len(landmark_point)):
-        # Convert the obtained landmark values x, y, z to the coordinates on the image
-        cv2.circle(image, (int(landmark_point[i][0]), int(landmark_point[i][1])), 1, (0, 255, 0), 1)
+def my_draw_face(image, Face):
+    for id_face in range(Face.num_detected_faces):
+        for id_lmk in range(Face.num_landmarks):
+            landmark_point = Face.get_landmark(id_face, id_lmk)
+            cv2.circle(image, landmark_point[:2], 1, (0, 255, 0), 1)
 
 def main():
     # For webcam input:
@@ -60,6 +58,9 @@ def main():
     start = time.perf_counter()
     frame_prv = -1
 
+    wname = 'MediaPipe FaceLandmark'
+    cv2.namedWindow(wname, cv2.WINDOW_NORMAL)
+
     Face = FaceLmk()
 
     while cap.isOpened():
@@ -74,16 +75,15 @@ def main():
             # If loading a video, use 'break' instead of 'continue'.
             continue
 
-        # Flip the image horizontally for a later selfie-view display, and convert
+        # Flip the image horizontally
         flipped_frame = cv2.flip(frame, 1)
 
         Face.detect(flipped_frame)
 
-        # Draw the face mesh annotations on the image.
-        for i in range(Face.num_detected_faces):
-                my_draw_face(flipped_frame, Face, i)
-        cv2.imshow('MediaPipe FaceLandmark', flipped_frame)
- 
+        # Draw the annotations on the image.
+        my_draw_face(flipped_frame, Face)
+        cv2.imshow(wname, flipped_frame)
+
         # We have some visualize function (visualize all face landmarks)
         # annotated_frame = Face.visualize(flipped_frame)
         # annotated_frame = Face.visualize_with_mp(flipped_frame)
@@ -92,43 +92,39 @@ def main():
         if cv2.waitKey(5) & 0xFF == ord('q'):
             break
     cap.release()
+    cv2.destroyAllWindows()
 
 if __name__ == '__main__':
     main()
 ```
   - Run the sample code with input the following command in the terminal.
-```
-    C:\\...\SourceCode> python myfacelmk.py
-``` 
-  <image src="../image/face.png" width="30%" height="30%"><br>
+    ```sh
+    C:\\...\SourceCode> python myface.py
+    ```
+  <image src="../image/myface.jpg" width="30%" height="30%"><br>
   - If you want to stop this program, press `q` key while the preview window is active.
 
 ### How to refer all the landmarks stored in the list
-- Draw by referring to all the landmarks of the 'id_face'-th face by the following code.
-```python
-    for i in range(len(landmark_point)):
-        cv2.circle(image, (int(landmark_point[i][0]), int(landmark_point[i][1])), 1, (0, 255, 0), 1)
-```
+- Draw by referring to all the landmarks of the all detected faces by the following code.
+    ```python
+    def my_draw_face(image, Face):
+        for id_face in range(Face.num_detected_faces):
+            for id_lmk in range(Face.num_landmarks):
+                landmark_point = Face.get_landmark(id_face, id_lmk)
+                cv2.circle(image, landmark_point[:2], 1, (0, 255, 0), 1)
+    ```
 
 ## :o:Exercise[Face1]
 - Calculate the center of gravity of all face landmarks, and draw red circle.<br>
     <image src="../image/q1_face.png" width="30%" height="30%"><br>
-### sample code
-```python
-def my_draw_cog_point(image, Face, id_face):
-    landmark_point = []
-    cog_point = np.zeros((3,), dtype=int)
-    for i in range(Face.num_landmark_points):
-        landmark_point.append(Face.get_landmark(id_face, i))
-        cog_point = cog_point + landmark_point[i]
-    # calculate the center of gravity point and cast type (float -> int)
-    cog_point = (cog_point / Face.num_landmark_points).astype(int)
-    cv2.circle(image, (cog_point[0], cog_point[1]), 5, (0, 0, 255), 2)
-
+### hint
+- [Exercise[Pose2]](pose.md##:o:Exercise[Pose2])
+- Write text on the cog point
+    ```python
     txt = '({:d}, {:d})'.format(cog_point[0], cog_point[1])
-    wrist_point_for_text = (cog_point[0]-20, cog_point[1]-20)
-    cv2.putText(image, org=wrist_point_for_text, text=txt, fontFace=cv2.FONT_HERSHEY_SIMPLEX, fontScale=1, color=(0, 0, 255), thickness=2, lineType=cv2.LINE_4)
-```
+    cog_point_for_text = (cog_point[0]-20, cog_point[1]-20)
+    cv2.putText(image, org=cog_point_for_text, text=txt, fontFace=cv2.FONT_HERSHEY_SIMPLEX, fontScale=1, color=(0, 0, 255), thickness=2, lineType=cv2.LINE_4)
+    ```
 
 ---
 
