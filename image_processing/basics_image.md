@@ -57,7 +57,7 @@
 - A comment starts with a hash character `#`<br>
   <image src="../image/pys.png"><br>
 
-#### Practice[basic]
+#### :o:Practice[basic]
 - Save the following sample code as a python file and execute it. (`C:/oit/py23_ipbl/SourceCode/sample_basic.py`)
   - How to make new python files with VSCode
     - Confirm that the selected directory (or files directly under it) is the directory where you want to make a new python file.<br>
@@ -105,7 +105,7 @@
   - a powerful `N`-dimensional array object
   - useful linear algebra, Fourier transform, and random number capabilities
 
-#### Practice[np]
+#### :o:Practice[np]
 - Save the following sample code as a python file and execute it. (`C:/oit/py23_ipbl/SourceCode/sample_numpy.py`)
 - `sample_numpy.py`
   ```python
@@ -143,7 +143,7 @@
 - This is an open source module for Computer Vision.
 - It has many functions for image processing.
 
-#### Practice[cv2]
+#### :o:Practice[cv2]
 - Save the following sample code as a python file, and execute it. (`C:/oit/py23_ipbl/SourceCode/sample_cv2.py`)
 - `sample_cv2.py`
   ```python
@@ -208,12 +208,12 @@
       a = 1 # global variable
       main() # function name is free
   ```
-#### Practice[script/function 1]
+#### :o:Practice[script/function 1]
 - Save the above two sample codes (`sample_imgIO.py`, `sample_imgIO_func.py`) as a python file. (`C:/oit/py23_ipbl/SourceCode/sample_imgIO.py`) (`C:/oit/py23_ipbl/SourceCode/sample_imgIO_func.py`)
 - Execute the two python codes, respectively.
 - It's O.K., if the two result images (`res_scrpt.png`, `res_func1.png`) in the directory `img` are the same.
 
-#### Practice[script/function 2]
+#### :o:Practice[script/function 2]
 - Let's use the function `imageIO` in `sample_imgIO_func.py` on Other python programs!
 - After `Practice[script/function 1]`, Save the following sample code as a python file, and execute it. (`C:/oit/py23_ipbl/SourceCode/sample_other.py`)
 - `sample_other.py`
@@ -224,6 +224,85 @@
   ```
 - It's O.K., if the all result images (`res_scrpt.png`, `res_func1.png`, `res_func2.png`) in the directory `img` are the same.
 
+### Python Code for Resizing images
+- The process with large size images is very heavy. If image size is huge, you should resize it to small.
+- There are various methods for resizing.
+  - Resizing with specified size
+    ```python
+    # the size of img_resize becomes (new_width, new_height).
+    img_resize = cv2.resize(img, (new_width, new_height))
+    ```
+  - Resizing with scalling
+    ```python
+    # downscalling -> 1/2
+    img_resize = cv2.resize(img, None, fx=1/2, fy=1/2)
+    ```
+  - Resizing the long side of images to a specified length while keeping the aspect ratio
+    - This program can resize Images of various sizes to approximately the same data size while maintaining the aspect ratio.
+    ```python
+    def resizeImg(img, length):
+        h, w = img.shape[:2]
+
+        if max(h, w) < length: # do not need resizing
+            return img
+
+        if h < w:
+            newSize = (int(h*length/w), length)
+        else:
+            newSize = (length, int(w*length/h))
+
+        print('resize to', newSize)
+
+        return cv2.resize(img, (newSize[1], newSize[0])) # (w, h)
+    ```
+
+#### :o:Exercise[resizing]
+- Please edit `resize.py` and type the following template. It's O.K. copy and paste.
+```python
+import cv2
+
+def resizeImg(img, length):
+    """
+    This function resizes the long side of images to the specified length while keeping the aspect ratio.
+
+    Args:
+        img(numpy.ndarray): input image
+        length(int): length of long side after resizing
+
+    Returns:
+        numpy.ndarray: resized image
+    """
+    h, w = img.shape[:2]
+    if max(h, w) < length:
+        return img
+    if h < w:
+        newSize = (int(h*length/w), length)
+    else:
+        newSize = (length, int(w*length/h))
+    print('resize to', newSize)
+    return cv2.resize(img, (newSize[1], newSize[0])) # (w, h)
+
+def main():
+    in_name = './img/Mandrill.png'
+    img = cv2.imread(in_name)
+
+    img150x100 = cv2.resize(img, (150, 100))
+    img_half = cv2.resize(img, None, fx=2/3, fy=2/3)
+    img150 = resizeImg(img.copy(), 150)
+
+    cv2.imshow('img', img)
+    cv2.imshow('img150x100', img150x100)
+    cv2.imshow('img_half', img_half)
+    cv2.imshow('img150', img150)
+    cv2.waitKey(0)
+    cv2.destroyAllWindows()
+
+if __name__ == '__main__':
+    main()
+```
+- Please run `resize.py`.
+- It's O.K., if the following figures pops up.<br>
+  <image src="../image/Mandrill_resizing.png" height=50% width=50%>
 
 ---
 
