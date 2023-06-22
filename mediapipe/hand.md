@@ -1,21 +1,18 @@
-# Tutorials for MediaPipe Hands
+# Samples for MediaPipe Hands
 
 [back to the top page](../README.md)
 
 ---
-
-## Objectives
-This page explains how to make a program for palm detection and get information.
-
 ## Prerequisite
-You have to finish [Image processing basics for static image](../image_processing/basics_image.md), [Image processing basics for video](../image_processing/basics_video.md). Additionally, it is recommended that [MediaPipe Pose](../mediapipe/pose.md) is completed.
+- You have to finish [Image processing basics for static image](../image_processing/basics_image.md), [Image processing basics for video](../image_processing/basics_video.md).
+- Additionally, it is recommended that [MediaPipe Pose](../mediapipe/pose.md) is completed.
 
 ## ![#f03c15](https://via.placeholder.com/15/f03c15/000000?text=+) Hand landmark model
 By using [MediaPipe Hand](https://developers.google.com/mediapipe/solutions/vision/hand_landmarker), we can obtain 3D position information of `21` landmarks as shown by the red marker in the following figure.<br>
 <image src="../image/hand_landmarks.png" width="75%" height="75%"><br>
 
-## :o:Practice[Get information of arbitrary landmark]
-  Get information and display about an landmark of index finger.
+## :o:Sample[Get information of arbitrary landmark]
+Get information and display about an landmark of index finger.
   - Execute `py23_ipbl_start.bat` file, and open the VSCode.
   - Make a python file `myhands.py` in the `SourceCode` directory. <br>
   - Type the following sample code. It's OK copy and paste.
