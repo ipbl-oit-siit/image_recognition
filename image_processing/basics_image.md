@@ -31,7 +31,7 @@
 
 
 ## ![#f03c15](https://via.placeholder.com/15/f03c15/000000?text=+) Image processing with Python3
-### Directory structure for Image processing
+### Directory structure for Image processing :x: `not yet`
 - The python programs (.py) have to be put under the directory `SourceCode`. And the all image files are saved/downloaded in the directory `img` and read from there.
 - Directory stucture
   ```text
