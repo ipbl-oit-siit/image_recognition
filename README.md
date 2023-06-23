@@ -12,10 +12,10 @@
         - If you want to know more about Mediapipe specifications, please refer to the specifications of each class linked in the page.
     - [how to use our Mediapipe Class (another repo)](https://github.com/ipbl-oit-siit/MediaPipeClass/blob/main/docs/how2use_more.md)
         - Please refer to the sample code and check them while actually running the program.
-    - If you would like to know more about how to use each model in detail, please refer to the following.
+    <!-- - If you would like to know more about how to use each model in detail, please refer to the following.
         - [pose](mediapipe/pose.md)
         - [hand](mediapipe/hand.md)
-        - [face](mediapipe/face.md)
+        - [face](mediapipe/face.md) -->
 
 # Official documents
 - Please check the following official documents if you want to know the other functions and more details about the OpenCV or the MediaPipe.
