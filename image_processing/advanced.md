@@ -14,7 +14,7 @@ This page contains challenges using all the techniques you have learned.
 
 ## :o:Challenge[Upon the another image]
 ### Step1
-- Download [`donuts.png`](../image/donuts.png), and save it in `data` folder.
+- Download [`donuts.png`](../image/donuts.png), and save it in `image` folder.
 - The following `upon_image1.py` is a sample that is drawn another image upon the original image.
     ```python
     # upon_image1.py
@@ -22,8 +22,8 @@ This page contains challenges using all the techniques you have learned.
     import numpy as np
 
     def main():
-        img = cv2.imread('./data/lena.jpg')
-        fimg = cv2.imread('./data/donuts.png')
+        img = cv2.imread('./image/lena.jpg')
+        fimg = cv2.imread('./image/donuts.png')
 
         print("Lenna:", img.shape)
         print("donuts:", fimg.shape)
@@ -79,7 +79,7 @@ img[sy:ey, sx:ex] = fimg[fsy:fey, fsx:fex]
 - You can get the `512 x 512` pixels donuts image with a white background when the following line in `upon_image.py` is replaced.
   - original code
     ```python
-    img = cv2.imread('./data/lena.jpg')
+    img = cv2.imread('./image/lena.jpg')
     ```
   - replaced code
     ```python
@@ -96,9 +96,9 @@ import cv2
 import numpy as np
 
 def main():
-    lena  = cv2.imread('./data/lena.jpg')
-    dnts  = cv2.imread('./data/donuts.png')
-    white = np.ones((lena.shape), dtype=np.uint8) * 255 #make a matrix whose size is the same as lena
+    lena  = cv2.imread('./image/lena.jpg')
+    dnts  = cv2.imread('./image/donuts.png')
+    white = np.ones_like(lena) * 255 #make a matrix whose size and type are the same as lena
 
     fh, fw = dnts.shape[:2]
     white[256:256+fh,256:256+fw] = dnts
@@ -116,8 +116,8 @@ if __name__ == '__main__':
     main()
 ```
 - `[white!=[255,255,255]]` is out the boolean value that each pixel value that is the element in the white matrix is whether equals \[255, 255, 255\].
-  - The pixels that make up a part of the donut return "True".
-  - The pixels whose colors are equals white (\[255, 255, 255\]) return "False".
+  - The pixels that make up a part of the donut return `True`.
+  - The pixels whose colors are equals white (\[255, 255, 255\]) return `False`.
 - The size of `lena` is same as `white`.
 - The following line is in order to replace the pixel values in `lena` to the pixel values in `white`, without its values equals \[255, 255, 255\].
     ```python
