@@ -7,7 +7,7 @@
 - [Image processing basics for static image](image_processing/basics_image.md)
 - [Image processing basics for video (webcam)](image_processing/basics_video.md)
 - [Image processing advanced](image_processing/advanced.md) :x: `not yet`
-- Image recognition
+- Image recognition (another repo)
     - [about our Mediapipe Class (another repo)](https://github.com/ipbl-oit-siit/MediaPipeClass/tree/main)
         - If you want to know more about Mediapipe specifications, please refer to the specifications of each class linked in the page.
     - [how to use our Mediapipe Class (another repo)](https://github.com/ipbl-oit-siit/MediaPipeClass/blob/main/docs/how2use_more.md)
