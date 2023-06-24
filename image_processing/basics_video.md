@@ -237,7 +237,7 @@ def main():
         if key == ord('q'):
             break
         elif key == ord('r'):
-            recflag = !recflag
+            recflag = ~recflag # `~` is inversion. (True->False, False->True)
 
         cv2.imshow("video", frame)
 
