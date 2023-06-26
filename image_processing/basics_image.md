@@ -36,13 +36,7 @@
 - Directory stucture
     ```text
     +[SourceCode]         <== work directory ("C:\oit\py23_ipbl\SourceCode")
-    |
     |-+[image]            <== this directory already exists.
-    | |--xxx.jpg
-    | |--xxx.png
-    | |--xxx.bmp
-    | |--...              <== save new image files at this place.
-    | |
     | |-+[standard]
     | | |--Aerial.bmp
     | | |--...
@@ -50,12 +44,19 @@
     | | |--...
     | | |
     | | |-+[mono]
-    | | | |--Airplane.bmp
-    | | | |--...
+    | |   |--Airplane.bmp
+    | |   |--...
+    | |
+    | |--swan.jpg         <== this image already exists.("C:\oit\py23_ipbl\SourceCode\image\swan.jpg")
+    | |--xxx.png
+    | |--xxx.bmp
+    | |--...              <== save new image files at this place.
     |
-    |-+[samples]
-    | |--hello_python.py  <== this program already exists. ("C:/oit/py23_ipbl/SourceCode/test.py")
-    | |--show_image.py    <== this program already exists.
+    |-+[sample]
+    | |--hello_python.py  <== this program already exists.("C:/oit/py23_ipbl/SourceCode/sample/hello_python.py")
+    | |--show_image.py
+    | |--show_video.py
+    | |--test_mediapipe.py
     |
     |--python files(.py)  <== save new python programs at here.
     |--MediapipeFaceDetection.py
