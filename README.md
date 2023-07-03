@@ -1,4 +1,4 @@
-[Portal Site](https://github.com/ipbl-oit-siit/portal/tree/main)
+[Portal Site](https://github.com/ipbl-oit-siit/portal/tree/main) / [MediaPipeClass](https://github.com/ipbl-oit-siit/MediaPipeClass/tree/main)
 
 # image_recognition
 - You have to do all the following `learning tasks`.
