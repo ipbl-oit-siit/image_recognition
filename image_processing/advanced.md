@@ -14,7 +14,7 @@ This page contains challenges using all the techniques you have learned.
 
 ## :o:Challenge[Upon the another image]
 ### Step1
-- Download [`donuts.png`](../image/donuts.png), and save it in `image` folder.
+- Download [`lena512.bmp`](../image/lena512.bmp) and [`donuts.png`](../image/donuts.png), and save it in `image` folder.
 - The following `upon_image1.py` is a sample that is drawn another image upon the original image.
     ```python
     # upon_image1.py
@@ -22,10 +22,10 @@ This page contains challenges using all the techniques you have learned.
     import numpy as np
 
     def main():
-        img = cv2.imread('./image/lena.jpg')
+        img = cv2.imread('./image/lena512.bmp')
         fimg = cv2.imread('./image/donuts.png')
 
-        print("Lenna:", img.shape)
+        print("Lena512:", img.shape)
         print("donuts:", fimg.shape)
 
         fh, fw = fimg.shape[:2]
@@ -40,9 +40,9 @@ This page contains challenges using all the techniques you have learned.
   if __name__ == '__main__':
       main()
   ```
-- You can see the image size of `lena.jpg` as `512 x 512` pixels. And you can see the image size of `donuts.png` as `256 x 256` pixels.
-- In `upon_image1.py`, it is considered that `donuts.png` is drawn upon the right-bottom of `lena.jpg`.
-- The size of both images has to be the same when a part of `lena.jpg` substitutes `donuts.png`.
+- You can see the image size of `lena512.bmp` as `512 x 512` pixels. And you can see the image size of `donuts.png` as `256 x 256` pixels.
+- In `upon_image1.py`, it is considered that `donuts.png` is drawn upon the right-bottom of `lena512.bmp`.
+- The size of both images has to be the same when a part of `lena512.bmp` substitutes `donuts.png`.
     ```python
     fh, fw = fimg.shape[:2]
     img[256:256+fh, 256:w+fw] = fimg
@@ -79,7 +79,7 @@ img[sy:ey, sx:ex] = fimg[fsy:fey, fsx:fex]
 - You can get the `512 x 512` pixels donuts image with a white background when the following line in `upon_image.py` is replaced.
   - original code
     ```python
-    img = cv2.imread('./image/lena.jpg')
+    img = cv2.imread('./image/lena512.bmp')
     ```
   - replaced code
     ```python
@@ -96,7 +96,7 @@ img[sy:ey, sx:ex] = fimg[fsy:fey, fsx:fex]
     import numpy as np
 
     def main():
-        lena  = cv2.imread('./image/lena.jpg')
+        lena  = cv2.imread('./image/lena512.bmp')
         dnts  = cv2.imread('./image/donuts.png')
         white = np.ones_like(lena) * 255 #make a matrix whose size and type are the same as lena
 
