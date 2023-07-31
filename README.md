@@ -4,6 +4,7 @@
 - You have to do all the following `learning tasks`.
     - Through them, you will be able to the follows.<br>
     <image src="./image/mediapipe.jpg" width="75%" height="75%"><br>
+    > **Note** This program uses image recognition with trained models. Training on proprietary data is out of scope.
 
 # Learning tasks
 - [Image processing basics for static image](image_processing/basics_image.md)
