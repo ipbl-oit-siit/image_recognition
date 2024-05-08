@@ -9,7 +9,7 @@
 
 ## prerequisite
 - "[Image Processing Environment for iPBL](https://github.com/ipbl-oit-siit/portal/blob/main/setup/python%2Bvscode.md)" has already been installed.
-- The python programs (.py) have to be put under the directory `ipbl24`. And the all image files are saved/downloaded in the directory `image` and read from there.
+- The python programs (.py) have to be put under the directory `ipbl24`. And the all image files are saved/downloaded in the directory `img` and read from there.
 
 ## :green_square: Basics of digital images
 ### :red_square: Color (Additive color)
@@ -88,7 +88,7 @@
     ```
 #### :o:Practice[basic]
 - Save the following sample code as a python file and execute it. (`C:/oit/home/ipbl24/sample_basic.py`)
-    <image src="../image/file_sample_basic.jpg" width=50%, height=50%>
+    <image src="../image/file_sample_basic.jpg" width=50%, height=50%><!--本来，差し替えが必要-->
 - `sample_basic.py`
     ```python
     sum = 0
