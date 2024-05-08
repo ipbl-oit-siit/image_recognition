@@ -9,7 +9,7 @@
 
 ## prerequisite
 - "[Image Processing Environment for iPBL](https://github.com/ipbl-oit-siit/portal/blob/main/setup/python%2Bvscode.md)" has already been installed.
-- The python programs (.py) have to be put under the directory `SourceCode`. And the all image files are saved/downloaded in the directory `image` and read from there.
+- The python programs (.py) have to be put under the directory `ipbl24`. And the all image files are saved/downloaded in the directory `image` and read from there.
 
 ## :green_square: Basics of digital images
 ### :red_square: Color (Additive color)
@@ -32,34 +32,40 @@
 
 ## :green_square: Image processing with Python3
 ### :red_square: Directory structure for Image processing
-- The python programs (.py) have to be put under the directory `SourceCode`. And the all image files are saved/downloaded in the directory `image` and read from there.
+- The python programs (.py) have to be put under the directory `ipbl24`. And the all image files are saved/downloaded in the directory `img` and read from there.
 - Directory stucture
     ```text
-    +[SourceCode]         <== work directory ("C:\oit\py23_ipbl\SourceCode")
-    |-+[image]            <== this directory already exists.
+    +[ipbl24]         <== work directory ("C:\oit\home\ipbl24")
+    |-+[img]            <== this directory already exists.
     | |-+[standard]
     | | |--Aerial.bmp
     | | |--...
-    | | |--Mandrill.png   <== this image already exists.("C:\oit\py23_ipbl\SourceCode\image\standard\Mandrill.bmp")
+    | | |--Mandrill.png   <== this image already exists.("C:\oit\home\ipbl24\img\standard\Mandrill.bmp")
     | | |--...
     | | |
     | | |-+[mono]
     | |   |--Airplane.bmp
     | |   |--...
     | |
-    | |--swan.jpg         <== this image already exists.("C:\oit\py23_ipbl\SourceCode\image\swan.jpg")
+    | |--image files(.jpg, png, bmp, etc)   <== save new image files at this place.
+    | |--xxx.jpg         <== this image does not exist now.("C:\oit\home\ipbl24\img\xxx.jpg")
     | |--xxx.png
     | |--xxx.bmp
-    | |--...              <== save new image files at this place.
+    | |--...
     |
-    |-+[sample]
-    | |--hello_python.py  <== this program already exists.("C:/oit/py23_ipbl/SourceCode/sample/hello_python.py")
-    | |--show_image.py
-    | |--show_video.py
-    | |--test_mediapipe.py
+    |-+[learned_models]
+    | |--lbfmodel.yaml  <== this program already exists.("C:\oit\home\ipbl24\learned_models\lbfmodel.yaml")
+    | |--...
+    | |
+    | |-+[haarcascades]
+    | | |--haarcascade_eye.xml
+    | | |--...
+    |
+    |--hello_opencv.py
+    |--hello_python.py  <== this program already exists.("C:\oit\home\ipbl24\hello_python.py")
     |
     |--python files(.py)  <== save new python programs at here.
-    |--MediapipeFaceDetection.py
+    |--MediapipeFaceDetection.py   <== this image does not exist now.("C:\oit\home\ipbl24\MediapipeFaceDetection.py")
     |--MediapipeFaceLandmark.py
     |--...
     |--myhand.py
@@ -67,21 +73,21 @@
     ```
 
 ### :red_square: Basics of Python3 program
-- more information: [python3.10 docs](https://docs.python.org/3.10/index.html)
+- more information: [python3.11 docs](https://docs.python.org/3.11/index.html)
 - Indentation is very important in Python programming. Indentation level is used to determine the coding block (the grouping of statements) and scope of variables.
 - Variable is accessible from same block or nested block. Variable doesn't need to declare before using. Type of variable is determined by value to be assigned.Variable declared "global" has globally scope.
 - A comment starts with a hash character `#`<br>
     <image src="../image/pys.png"><br>
 
 #### prerequisite
-- Open the VSCode by the running the `py23i_start.bat`. Confirm that the current directory shown in the terminal window is `SourceCode`.
-- The python program (.py) has to be made in `SourceCode` folder. And all image files are saved (downloaded) in `image` folder and read from there.
+- Open the VSCode by the running the `ipbl24_start` on the Desktop. Confirm that the current directory shown in the terminal window is `ipbl24`.
+- The python program (.py) has to be made in `ipbl24` folder. And all image files are saved (downloaded) in `image` folder and read from there.
 - You can run a python program with the input of the following command in the terminal.
     ```sh
-    C:\\...\SourceCode> python XXX.py
+    C:\\...\ipbl24> python XXX.py
     ```
 #### :o:Practice[basic]
-- Save the following sample code as a python file and execute it. (`C:/oit/py23_ipbl/SourceCode/sample_basic.py`)
+- Save the following sample code as a python file and execute it. (`C:/oit/home/ipbl24/sample_basic.py`)
     <image src="../image/file_sample_basic.jpg" width=50%, height=50%>
 - `sample_basic.py`
     ```python
@@ -99,7 +105,7 @@
     ```
 - It is O.K., if it is executed as follows.
   ```sh
-  C:\\...\SourceCode> python sample_basic.py
+  C:\\...\ipbl24> python sample_basic.py
   0:0
   1:1
   2:3
@@ -121,7 +127,7 @@
     - useful linear algebra, Fourier transform, and random number capabilities
 
 #### :o:Practice[np]
-- Save the following sample code as a python file and execute it. (`C:/oit/py23_ipbl/SourceCode/sample_numpy.py`)
+- Save the following sample code as a python file and execute it. (`C:/oit/home/ipbl24/sample_numpy.py`)
 - `sample_numpy.py`
     ```python
     import numpy as np
@@ -133,7 +139,7 @@
     ```
 - It is O.K., if it is executed as follows.
     ```sh
-    C:\\...\SourceCode> python sample_numpy.py
+    C:\\...\ipbl24> python sample_numpy.py
     [[[0. 0.]
         [0. 1.]
         [0. 0.]]
@@ -154,16 +160,16 @@
     ```
 
 #### :blue_square: `cv2` (opencv-python)
-- more information: [OpenCV4.7.0 docs](https://docs.opencv.org/4.7.0/)
+- more information: [OpenCV4.9.0 docs](https://docs.opencv.org/4.9.0/)
 - This is an open source module for Computer Vision.
 - It has many functions for image processing.
 
 #### :o:Practice[cv2]
-- Save the following sample code as a python file, and execute it. (`C:/oit/py23_ipbl/SourceCode/sample_cv2.py`)
+- Save the following sample code as a python file, and execute it. (`C:/oit/home/ipbl24/sample_cv2.py`)
 - `sample_cv2.py`
     ```python
     import cv2
-    img = cv2.imread('./image/standard/Mandrill.bmp') # read image file
+    img = cv2.imread('./img/standard/Mandrill.bmp') # read image file
     if img is None: # maybe Path is wrong
         print('ERROR: image file is not opened.')
         exit(1)
@@ -186,13 +192,13 @@
     import cv2
 
     # read image file
-    img = cv2.imread('./image/standard/Mandrill.bmp')
+    img = cv2.imread('./img/standard/Mandrill.bmp')
     if img is None:
         print('ERROR: image file is not opened.')
         exit(1)
 
     # write image file
-    cv2.imwrite('./image/res_scrpt.png', img)
+    cv2.imwrite('./img/res_scrpt.png', img)
 
     # show image file
     cv2.imshow('window name', img)
@@ -218,8 +224,8 @@
 
     def main():
         print(a, b) # print global variables
-        in_name = './image/standard/Mandrill.bmp' # local variable
-        out_name = './image/res_func1.png' # local variable
+        in_name = './img/standard/Mandrill.bmp' # local variable
+        out_name = './img/res_func1.png' # local variable
         img = imageIO(in_name, out_name)
         # show image file
         cv2.imshow('window name', img)
@@ -233,18 +239,18 @@
     ```
 
 #### :o:Practice[script/function 1]
-- Save the above two sample codes (`sample_imgIO.py`, `sample_imgIO_func.py`) as a python file. (`C:/oit/py23_ipbl/SourceCode/sample_imgIO.py`) (`C:/oit/py23_ipbl/SourceCode/sample_imgIO_func.py`)
+- Save the above two sample codes (`sample_imgIO.py`, `sample_imgIO_func.py`) as a python file. (`C:/oit/home/ipbl24/sample_imgIO.py`) (`C:/oit/home/ipbl24/sample_imgIO_func.py`)
 - Execute the two python codes, respectively.
 - It's O.K., if the two result images (`res_scrpt.png`, `res_func1.png`) in the directory `image` are the same.
 
 #### :o:Practice[script/function 2]
 - Let's use the function `imageIO` in `sample_imgIO_func.py` on Other python programs!
-- After `Practice[script/function 1]`, Save the following sample code as a python file, and execute it. (`C:/oit/py23_ipbl/SourceCode/sample_other.py`)
+- After `Practice[script/function 1]`, Save the following sample code as a python file, and execute it. (`C:/oit/home/ipbl24/sample_other.py`)
 - `sample_other.py`
   ```python
   import sample_imgIO_func as myImgIO
 
-  myImgIO.imageIO('./image/standard/Mandrill.bmp', './image/res_func2.png')
+  myImgIO.imageIO('./img/standard/Mandrill.bmp', './img/res_func2.png')
   ```
 - It's O.K., if the all result images (`res_scrpt.png`, `res_func1.png`, `res_func2.png`) in the directory `image` are the same.
 
@@ -307,7 +313,7 @@
         return cv2.resize(img, (newSize[1], newSize[0])) # (w, h)
 
     def main():
-        in_name = './image/standard/Mandrill.bmp'
+        in_name = './img/standard/Mandrill.bmp'
         img = cv2.imread(in_name)
         if img is None:
             print('ERROR: image file is not opened.')

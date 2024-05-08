@@ -10,11 +10,11 @@
 - This page explains how to process the face/facial landmarks detection on the video image.
 
 ## Prerequisite
-- Open the VSCode by the running the `py23i_start.bat`. Confirm that the current directory shown in the terminal window is `SourceCode`.
-- The python program (.py) has to be made in `SourceCode` folder. And all image files are saved (downloaded) in `image` folder and read from there.
+- Open the VSCode by the running the `ipbl24_start` on the Desktop. Confirm that the current directory shown in the terminal window is `ipbl24`.
+- The python program (.py) has to be made in `ipbl24` folder. And all image files are saved (downloaded) in `img` folder and read from there.
 - You can run a python program with the input of the following command in the terminal.
     ```sh
-    C:\\...\SourceCode> python XXX.py
+    C:\\...\ipbl24> python XXX.py
     ```
 ## :red_square: Sample of simple video-image processing
 
@@ -56,7 +56,7 @@ if __name__ == '__main__':
 - A value of grobal variable `device` in `video_viewer1.py` is the device number of the camera starting from 0.
     - It can be read the movie file when a value of the `device` is set a movie file name, like the following.
         ```python
-        device = "./image/moviefile.avi"
+        device = "./img/moviefile.avi"
         ```
 - The following codes in `video_viewer1.py` are in order to open the video stream and get the properties of the video-image.
     | code | comment |
@@ -92,7 +92,7 @@ if __name__ == '__main__':
 - It exits the while loop when the user presses the `q` key.
 
 ### :o:Practice
-- You should be copy [`video_viewer1.py`](#video_viewer1py) with the `clipboard` button and paste it to the VS Code, and save it as  `video_viewer1.py` in the `SourceCode` folder.
+- You should be copy [`video_viewer1.py`](#video_viewer1py) with the `clipboard` button and paste it to the VS Code, and save it as  `video_viewer1.py` in the `ipbl24` folder.
 - If there is only one camera on your device, including the built-in, the number of your camera device is `0`.
 - Set a value of the global variable `device` to adapt your PC environment.
 - Run the sample code.
@@ -181,7 +181,7 @@ if __name__ == '__main__':
       break
   elif key & 0xFF == ord('s'):
       cv2.imshow("video", frame)
-      cv2.imwrite("./image/selfie.jpg", frame)
+      cv2.imwrite("./img/selfie.jpg", frame)
   ```
   - The following function in the hint code is in order to write a still image.
 
@@ -195,11 +195,11 @@ if __name__ == '__main__':
     :--- | :---
     | `ord('a caracter')` | It's changed a character in the argument to the number of Unicode. |
 
-- If your program is correct, you will be able to find a jpeg file named `selfie.jpg` in `image` folder when you press `s` key.
+- If your program is correct, you will be able to find a jpeg file named `selfie.jpg` in `img` folder when you press `s` key.
 
 ## :red_square: Appendix: Sample of video-image recorder
 ### Preparation
-- Download [`openh264-1.8.0-win64.dll`](https://oskit-my.sharepoint.com/:u:/g/personal/yoshiyuki_kamakura_oit_ac_jp/EbP0DohYsAtHt9sXCA22EZ8BR1LDrgoMHTeAv_ihERy_Kg?e=HVQlFv), and save it in `SourceCode` folder.
+- Download [`openh264-1.8.0-win64.dll`](https://oskit-my.sharepoint.com/:u:/g/personal/yoshiyuki_kamakura_oit_ac_jp/EbP0DohYsAtHt9sXCA22EZ8BR1LDrgoMHTeAv_ihERy_Kg?e=HVQlFv), and save it in `ipbl24` folder.
     - It's a H264 codec file for Windows.
 
 ### video_recorder.py
@@ -265,7 +265,7 @@ if __name__ == '__main__':
     ```python
     writer.release()
     ```
-- You can find `video_name` in the `SourceCode` folder.
+- You can find `video_name` in the `ipbl24` folder.
 
 
 ---
