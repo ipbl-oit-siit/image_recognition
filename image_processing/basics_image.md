@@ -188,23 +188,23 @@
   - Functions can be called by other python programs.
 
 #### Python Script `sample_imgIO.py`
-    ```python
-    import cv2
+```python
+import cv2
 
-    # read image file
-    img = cv2.imread('./img/standard/Mandrill.bmp')
-    if img is None:
-        print('ERROR: image file is not opened.')
-        exit(1)
+# read image file
+img = cv2.imread('./img/standard/Mandrill.bmp')
+if img is None:
+    print('ERROR: image file is not opened.')
+    exit(1)
 
-    # write image file
-    cv2.imwrite('./img/res_scrpt.png', img)
+# write image file
+cv2.imwrite('./img/res_scrpt.png', img)
 
-    # show image file
-    cv2.imshow('window name', img)
-    cv2.waitKey(0)  # pause until any key pressed
-    cv2.destroyAllWindows()  # close all windows
-    ```
+# show image file
+cv2.imshow('window name', img)
+cv2.waitKey(0)  # pause until any key pressed
+cv2.destroyAllWindows()  # close all windows
+```
 
 #### Python Function `sample_imgIO_func.py`
     ```python
