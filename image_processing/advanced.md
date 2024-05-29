@@ -29,7 +29,7 @@ This page contains challenges using all the techniques you have learned.
         print("donuts:", fimg.shape)
 
         fh, fw = fimg.shape[:2]
-        img[256:256+fh, 256:w+fw] = fimg
+        img[256:256+fh, 256:256+fw] = fimg
 
         cv2.imshow("mask", img)
 
