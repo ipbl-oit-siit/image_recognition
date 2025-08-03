@@ -10,11 +10,11 @@
 - This page explains how to process the face/facial landmarks detection on the video image.
 
 ## Prerequisite
-- Open the VSCode by the running the `ipbl24_start` on the Desktop. Confirm that the current directory shown in the terminal window is `ipbl24`.
-- The python program (.py) has to be made in `ipbl24` folder. And all image files are saved (downloaded) in `img` folder and read from there.
+- Open the VSCode by the running the `py25en_start` on the Desktop. Confirm that the current directory shown in the terminal window is `py25en`.
+- The python program (.py) has to be made in `C:\oit\py25en\source` folder. And all image files are saved (downloaded) in `C:\oit\py25en\source\img` folder and read from there.
 - You can run a python program with the input of the following command in the terminal.
     ```sh
-    C:\\...\ipbl24> python XXX.py
+    C:\\...\py25en\source> python XXX.py
     ```
 ## :red_square: Sample of simple video-image processing
 
@@ -92,7 +92,7 @@ if __name__ == '__main__':
 - It exits the while loop when the user presses the `q` key.
 
 ### :o:Practice
-- You should be copy [`video_viewer1.py`](#video_viewer1py) with the `clipboard` button and paste it to the VS Code, and save it as  `video_viewer1.py` in the `ipbl24` folder.
+- You should be copy [`video_viewer1.py`](#video_viewer1py) with the `clipboard` button and paste it to the VS Code, and save it as  `video_viewer1.py` in the `source` folder.
 - If there is only one camera on your device, including the built-in, the number of your camera device is `0`.
 - Set a value of the global variable `device` to adapt your PC environment.
 - Run the sample code.
@@ -199,7 +199,7 @@ if __name__ == '__main__':
 
 ## :red_square: Appendix: Sample of video-image recorder
 ### Preparation
-- Download [`openh264-1.8.0-win64.dll`](https://oskit-my.sharepoint.com/:u:/g/personal/yoshiyuki_kamakura_oit_ac_jp/EbP0DohYsAtHt9sXCA22EZ8BR1LDrgoMHTeAv_ihERy_Kg?e=HVQlFv), and save it in `ipbl24` folder.
+- Download [`openh264-1.8.0-win64.dll`](https://oskit-my.sharepoint.com/:u:/r/personal/yoshiyuki_kamakura_oit_ac_jp/Documents/_shares_drive/ipbl2025/share/Python/openh264-1.8.0-win64.dll?csf=1&web=1&e=t3OJhf), and save it in `source` folder.
     - It's a H264 codec file for Windows.
 
 ### video_recorder.py
@@ -255,7 +255,7 @@ if __name__ == '__main__':
     writer = cv2.VideoWriter(video_name, cv2.VideoWriter_fourcc(*"H264"), fps, (int(wt), int(ht)))
     ```
     - `cv2.VideoWriter_fourcc(*"H264")` specifies the codec of the recording. You can use the H264 codec if there is a codec file in the code folder.
-    - You can see the arguments and more details of `VideoWriter()` [here](https://docs.opencv.org/3.4/dd/d9e/classcv_1_1VideoWriter.html)
+    - You can see the arguments and more details of `VideoWriter()` [here](https://docs.opencv.org/4.11.0/dd/d9e/classcv_1_1VideoWriter.html)
 - It can be started to record the video-image to `video_name` file when the user presses `r` key. And its recording is stopped when the user presses `r` key again. It's implemented with the value in `recflag` flag.
 - The following line in `video_recorder.py` is in order to write the frame on the file.
     ```python
@@ -265,7 +265,7 @@ if __name__ == '__main__':
     ```python
     writer.release()
     ```
-- You can find `video_name` in the `ipbl24` folder.
+- You can find `video_name` in the `source` folder.
 
 
 ---

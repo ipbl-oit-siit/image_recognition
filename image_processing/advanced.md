@@ -14,7 +14,7 @@ This page contains challenges using all the techniques you have learned.
 
 ## :o:Challenge[Upon the another image]
 ### Step1
-- Download [`lena512.bmp`](../image/lena512.bmp) and [`donuts.png`](../image/donuts.png), and save it in `image` folder.
+- Download [`lenna512.bmp`](../img/lenna512.bmp) and [`donuts.png`](../img/donuts.png), and save it in `img` folder.
 - The following `upon_image1.py` is a sample that is drawn another image upon the original image.
     ```python
     # upon_image1.py
@@ -22,10 +22,10 @@ This page contains challenges using all the techniques you have learned.
     import numpy as np
 
     def main():
-        img = cv2.imread('./image/lena512.bmp')
-        fimg = cv2.imread('./image/donuts.png')
+        img = cv2.imread('./img/lenna512.bmp')
+        fimg = cv2.imread('./img/donuts.png')
 
-        print("Lena512:", img.shape)
+        print("Lenna512:", img.shape)
         print("donuts:", fimg.shape)
 
         fh, fw = fimg.shape[:2]
@@ -40,14 +40,14 @@ This page contains challenges using all the techniques you have learned.
   if __name__ == '__main__':
       main()
   ```
-- You can see the image size of `lena512.bmp` as `512 x 512` pixels. And you can see the image size of `donuts.png` as `256 x 256` pixels.
-- In `upon_image1.py`, it is considered that `donuts.png` is drawn upon the right-bottom of `lena512.bmp`.
-- The size of both images has to be the same when a part of `lena512.bmp` substitutes `donuts.png`.
+- You can see the image size of `lenna512.bmp` as `512 x 512` pixels. And you can see the image size of `donuts.png` as `256 x 256` pixels.
+- In `upon_image1.py`, it is considered that `donuts.png` is drawn upon the right-bottom of `lenna512.bmp`.
+- The size of both images has to be the same when a part of `lenna512.bmp` substitutes `donuts.png`.
     ```python
     fh, fw = fimg.shape[:2]
     img[256:256+fh, 256:w+fw] = fimg
     ```
-    ![result](../image/upon_donuts1.jpg)
+    ![result](../img/upon_donuts1.jpg)
 
 ### Step1 Extra
 - If the pasting area exceeds the size of the target image, the above program will result in an error.
@@ -79,14 +79,14 @@ img[sy:ey, sx:ex] = fimg[fsy:fey, fsx:fex]
 - You can get the `512 x 512` pixels donuts image with a white background when the following line in `upon_image.py` is replaced.
   - original code
     ```python
-    img = cv2.imread('./image/lena512.bmp')
+    img = cv2.imread('./img/lenna512.bmp')
     ```
   - replaced code
     ```python
     img = np.ones((512, 512, 3), dtype=np.uint8) * 255
     ```
 - `np.ones((512, 512, 3), dtype=np.uint8)` is in order to make the `512`(height) by `512`(width) by `3`(depth) matrix whose elements are ones. Therefore, to use the upper replaced code can get the white image whose size is `512 x 512` pixels.<br>
-    ![result](../image/upon_donuts2.jpg)
+    ![result](../img/upon_donuts2.jpg)
 
 ### Step3
 - The following `upon_image2.py` is a sample that is drawn another image upon the original image without the background.
@@ -96,18 +96,18 @@ img[sy:ey, sx:ex] = fimg[fsy:fey, fsx:fex]
     import numpy as np
 
     def main():
-        lena  = cv2.imread('./image/lena512.bmp')
-        dnts  = cv2.imread('./image/donuts.png')
-        white = np.ones_like(lena) * 255 #make a matrix whose size and type are the same as lena
+        lenna  = cv2.imread('./img/lenna512.bmp')
+        dnts  = cv2.imread('./img/donuts.png')
+        white = np.ones_like(lenna) * 255 #make a matrix whose size and type are the same as lenna
 
         fh, fw = dnts.shape[:2]
         white[256:256+fh,256:256+fw] = dnts
 
         print([white!=[255,255,255]])
 
-        lena[white!=[255, 255, 255]] = white[white!=[255, 255, 255]]
+        lenna[white!=[255, 255, 255]] = white[white!=[255, 255, 255]]
 
-        cv2.imshow("mask", lena)
+        cv2.imshow("mask", lenna)
         cv2.waitKey(0)
         cv2.destroyAllWindows()
 
@@ -118,10 +118,10 @@ img[sy:ey, sx:ex] = fimg[fsy:fey, fsx:fex]
 - `[white!=[255,255,255]]` is out the boolean value that each pixel value that is the element in the white matrix is whether equals \[255, 255, 255\].
   - The pixels that make up a part of the donut return `True`.
   - The pixels whose colors are equals white (\[255, 255, 255\]) return `False`.
-- The size of `lena` is same as `white`.
-- The following line is in order to replace the pixel values in `lena` to the pixel values in `white`, without its values equals \[255, 255, 255\].
+- The size of `lenna` is same as `white`.
+- The following line is in order to replace the pixel values in `lenna` to the pixel values in `white`, without its values equals \[255, 255, 255\].
     ```python
-    lena[white!=[255, 255, 255]] = white[white!=[255, 255, 255]]
+    lenna[white!=[255, 255, 255]] = white[white!=[255, 255, 255]]
     ```
     ![result](../image/upon_donuts3.jpg)
 ### Challenge task
