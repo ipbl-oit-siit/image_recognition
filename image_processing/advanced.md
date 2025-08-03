@@ -14,7 +14,7 @@ This page contains challenges using all the techniques you have learned.
 
 ## :o:Challenge[Upon the another image]
 ### Step1
-- Download [`lenna512.bmp`](../img/lenna512.bmp) and [`donuts.png`](../img/donuts.png), and save it in `img` folder.
+- Download [`lenna512.bmp`](../image/lenna512.bmp) and [`donuts.png`](../image/donuts.png), and save it in `img` folder.
 - The following `upon_image1.py` is a sample that is drawn another image upon the original image.
     ```python
     # upon_image1.py
@@ -47,7 +47,7 @@ This page contains challenges using all the techniques you have learned.
     fh, fw = fimg.shape[:2]
     img[256:256+fh, 256:w+fw] = fimg
     ```
-    ![result](../img/upon_donuts1.jpg)
+    ![result](../image/upon_donuts1.jpg)
 
 ### Step1 Extra
 - If the pasting area exceeds the size of the target image, the above program will result in an error.
@@ -86,7 +86,7 @@ img[sy:ey, sx:ex] = fimg[fsy:fey, fsx:fex]
     img = np.ones((512, 512, 3), dtype=np.uint8) * 255
     ```
 - `np.ones((512, 512, 3), dtype=np.uint8)` is in order to make the `512`(height) by `512`(width) by `3`(depth) matrix whose elements are ones. Therefore, to use the upper replaced code can get the white image whose size is `512 x 512` pixels.<br>
-    ![result](../img/upon_donuts2.jpg)
+    ![result](../image/upon_donuts2.jpg)
 
 ### Step3
 - The following `upon_image2.py` is a sample that is drawn another image upon the original image without the background.
