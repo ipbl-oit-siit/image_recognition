@@ -54,16 +54,22 @@ This page contains challenges using all the techniques you have learned.
 - In this case, both the pasting area and the destination area must be adjusted.
 #### sample code
 ```python
-h, w = img.shape[:2] # 256x256
-fh, fw = fimg.shape[:2] # 512x512
+h, w = img.shape[:2] # 512x512
+fh, fw = fimg.shape[:2] # 256x256
 
-start_y, end_y = -128, -128+fh
-start_x, end_x = -128, -128+fw
+center = (0, 0)
+fh_half = int(fh/2)
+fw_half = int(fw/2)
+
+start_y = center[0] - fh_half
+end_y   = center[0] + (fh-fh_half)
+start_x = center[1] - fw_half
+end_x   = center[1] + (fw-fw_half)
 
 sy = np.maximum(0, start_y)
 sx = np.maximum(0, start_x)
 ey = np.minimum(h, end_y)
-ex = np.minimum(h, end_x)
+ex = np.minimum(w, end_x)
 
 fsy = np.maximum(0, 0 - start_y)
 fsx = np.maximum(0, 0 - start_x)
