@@ -29,7 +29,10 @@ This page contains challenges using all the techniques you have learned.
         print("donuts:", fimg.shape)
 
         fh, fw = fimg.shape[:2]
-        img[256:256+fh, 256:256+fw] = fimg
+        center = (384, 384)
+        fh_half = int(fh/2)
+        fw_half = int(fw/2)
+        img[center[0]-fh_half:center[0]+(fh-fh_half), center[1]-fw_half:center[1]+(fw-fw_half)] = fimg
 
         cv2.imshow("mask", img)
 
@@ -107,7 +110,11 @@ img[sy:ey, sx:ex] = fimg[fsy:fey, fsx:fex]
         white = np.ones_like(lenna) * 255 #make a matrix whose size and type are the same as lenna
 
         fh, fw = dnts.shape[:2]
-        white[256:256+fh,256:256+fw] = dnts
+        center = (0, 0)
+        fh_half = int(fh/2)
+        fw_half = int(fw/2)
+
+        white[center[0]-fh_half:center[0]+(fh-fh_half),center[1]-fw_half:center[1]+(fw-fw_half)] = dnts
 
         print([white!=[255,255,255]])
 
