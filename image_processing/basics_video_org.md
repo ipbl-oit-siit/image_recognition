@@ -71,7 +71,7 @@ if __name__ == '__main__':
 - A value of global variable `device` in `video_viewer1.py` is the device number of the camera starting from 0.
     - It can read a movie file when a value of the `device` is set to a movie file name, like the following.
         ```python
-        device = "./img/moviefile.avi"
+        device = "./img/moviefile.mp4"
         ```
 - The following codes in `video_viewer1.py` are used to open the video stream and get the properties of the video image.
     | code | comment |
@@ -147,7 +147,7 @@ import cv2
 from my_libs.my_av2 import VideoCapture, VideoWriter
 
 device = 0 # camera device number
-video_name = "record.avi"
+video_name = "record.mp4"
 
 # main----------------------------------------------------
 def main():
