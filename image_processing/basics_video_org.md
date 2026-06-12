@@ -193,7 +193,7 @@ if __name__ == '__main__':
     ```python
     writer = VideoWriter(video_name, fps, (int(wt), int(ht)))
     ```
-    - It uses `PyAV` internally to encode H.264 video. You do not need to specify `fourcc` codes manually.
+    - It uses `my_av2.py (PyAV)` internally to encode H.264 video. You do not need to specify `fourcc` codes manually.
 - It starts recording the video-image to the `video_name` file when the user presses the `r` key, and stops when pressed again.
 - When `writer.release()` is called, it automatically creates a `record.log.csv` next to the video file, which is useful for analyzing processing lag and frame drops.
 
