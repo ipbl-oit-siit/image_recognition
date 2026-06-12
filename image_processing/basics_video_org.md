@@ -6,16 +6,14 @@
 
 ## Objectives
 - This page explains how to process the video image in Python 3 with high-precision time management.
-- This page explains how to detect the face/facial landmarks with OpenCV.
-- This page explains how to process the face/facial landmarks detection on the video image.
 
 ## Prerequisite
-- Open the VSCode by the running the `py25en_start` on the Desktop. Confirm that the current directory shown in the terminal window is `py25en`.
-- **[CRITICAL]** Make sure that `my_av2.py` is placed in your `C:\oit\py25en\source` folder. This custom library is used for handling precise timestamps in real-time processing and video playback.
-- All image files are saved (downloaded) in `C:\oit\py25en\source\img` folder and read from there.
+- Open the VSCode by the running the `py26en_start` on the Desktop. Confirm that the current directory shown in the terminal window is `C:\oit\home\ipbl`.
+- **[CRITICAL]** Make sure that `my_av2.py` is placed in your `C:\oit\home\ipbl\my_libs` folder. This custom library is used for handling precise timestamps in real-time processing and video playback using PyAV library.
+- All image files are saved (downloaded) in `C:\oit\home\ipbl\img` folder and read from there.
 - You can run a python program with the input of the following command in the terminal.
     ```sh
-    C:\\...\py25en\source> python XXX.py
+    C:\\oit\home\ipbl> python XXX.py
     ```
 
 ## :red_square: Sample of high-precision video-image processing
@@ -33,7 +31,7 @@ import os
 os.environ["OPENCV_VIDEOIO_MSMF_ENABLE_HW_TRANSFORMS"] = "0"
 import cv2
 # Import the high-precision VideoCapture from custom library
-from my_av2 import VideoCapture
+from my_libs.my_av2 import VideoCapture
 
 device = 0 # camera device number
 
