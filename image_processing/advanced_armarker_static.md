@@ -1,14 +1,41 @@
-### Advanced Application: AR Marker Generation and Detection
+# Advanced Image Processing: AR Marker Generation and Detection
 
-An **AR marker** (such as an ArUco marker) is a distinct square pattern used in computer vision to determine positions, orientations, and object identities.
+[back to the top page](../README.md)
 
-#### :o:Exercise [AR Marker Overlay]
-* Let's understand how to generate and detect AR markers using OpenCV, and then complete a program to overlay dynamic card images on top of detected markers.
+---
+### :orange_square: AR Marker
 
-##### 1. Generating an AR Marker (`ipB_generateARmarker.py`)
-* To create a marker, you select a predefined dictionary (a set of marker patterns) and specify a unique marker ID along with the output pixel size.
-* Save the following code as `ipB_generateARmarker.py`.
-* **Complete the `TODO` sections** by filling integers into `id` and `sidePixels` to generate your marker image.
+* An **AR marker** (such as an ArUco marker) is a distinct square pattern used in computer vision to determine positions, orientations, and object identities.
+
+
+
+#### Features of AR marker
+
+* It is **reversibly convertible** between black-and-white grid matrices and binary IDs.
+* It allows for more **intuitive coordinate handling**, making it easy to specify areas like "a 3D space relative to a physical object".
+
+#### Data Range in OpenCV
+
+When using OpenCV (`cv2`), the system utilizes specific parameters to handle marker generation and object position parameters:
+
+* **Dictionary**: Selection of predefined marker pattern sheets (e.g., `DICT_4X4_50`).
+* **ID**: $0$ to $49$ (The individual identifier assigned to each generated square pattern).
+* **SidePixels**: Width and height dimensions required for image pixel allocation.
+
+
+
+#### :blue_square: Color conversion with `cv2`
+
+* You can detect markers embedded inside a BGR image using the following function:
+```python
+corners, ids, rejectedImgPoints = cv2.aruco.detectMarkers(img, dictionary)
+
+```
+
+#### :o:Practice[AR Marker]
+
+* Save the following sample code as a python file, and execute it. (`C:/oit/py25en/source/sample_marker.py`)
+* `sample_marker.py`
 
 ```python
 import cv2
@@ -34,42 +61,34 @@ if __name__ == '__main__':
 
 ```
 
----
+* It is O.K., if the windows pop up and you can observe how the components of Hue, Saturation, and Value are separated.
 
-##### 2. Concept of AR Marker Detection
+### :orange_square: Advanced Application: Image Overlay using AR Marker
 
-* When capturing or reading an image containing markers, the system returns their exact corner locations and identified IDs.
+By analyzing pixel values in the AR marker space, we can define a specific range of coordinates to overlay target objects onto an image.
 
-```python
-# Detect markers in an image
-dictionary = cv2.aruco.getPredefinedDictionary(cv2.aruco.DICT_4X4_50)
+#### :o:Exercise [AR Marker Overlay]
 
-# TODO: Fill variables to catch the return values!
-________, ______, rejectedImgPoints = cv2.aruco.detectMarkers(img, dictionary)
+* Let's find the proper HSV thresholds of the **pink box** using the interactive tool, and then complete the program to extract it.
 
-# Draw green borders and ID text over the detected markers (Overwrites 'img')
-cv2.aruco.drawDetectedMarkers(img, corners, ids, (0, 255, 0))
+##### 1. Find HSV values using `color_picker.py`
 
-```
+* Run the distributed [`color_picker.py`](https://www.google.com/search?q=color_picker.py) program.
+* **Click several different points** inside the pink box (such as the brightest areas, darker shaded areas, and average areas).
+* Observe the $(H, S, V)$ values printed in the terminal each time to find the minimum and maximum values of the pink region.
 
-> 💡 **Key Variables to Use:**
-> Out of the returned data, we focus only on **`corners`** and **`ids`**:
-> * **`corners`**: The coordinate pairs of the detected marker's four corners.
-> * **`ids`**: The unique marker ID integer mapped to each detected pattern.
+##### 2. Concept of Color Extraction
+
+To extract a specific color, we filter the HSV image by defining a lower and upper boundary for each channel. Pixels that fall within this range form a **Binary Mask** (White = Target color, Black = Others). By combining this mask with the original image using a bitwise AND operation, we can isolate the target object.
+
+> 💡 **How to set `lower_pink` and `upper_pink`:**
+> Look at the multiple $(H, S, V)$ values you gathered by clicking around the box:
+> * **`lower_pink`**: Set values slightly lower than the *minimum* H, S, and V you observed.
+> * **`upper_pink`**: Set values slightly higher than the *maximum* H, S, and V you observed.
 > 
 > 
 
-> 🔑 **Supplementary Note: Multiple Return Values in Python**
-> The function `cv2.aruco.detectMarkers()` returns multiple outputs simultaneously. Python handles multiple return values smoothly by unpacking them directly into variables. You have already encountered this feature across other OpenCV operations:
-> * **Splitting Color Channels**: `b, g, r = cv2.split(img)`
-> * **Reading Video Frames**: `ret, frame = cap.read()`
-> * **Getting Image Dimensions**: `h, w, c = img.shape`
-> 
-> 
-
----
-
-##### 3. Complete the Overlay Program (`ipB_detectARmarker.py`)
+##### 3. Complete the Extraction Program (`extract_color.py`)
 
 * Open the distributed [`ipB_detectARmarker.py`](https://www.google.com/search?q=ipB_detectARmarker.py) file.
 * **Complete the `TODO` sections** to detect the markers from the scene image (`balanced_random_markers.png`) and overlay the matching cat-themed playing card images (`0.png` to `6.png`) based on the detected IDs.
@@ -168,7 +187,11 @@ if __name__ == '__main__':
 
 ```
 
-* It's O.K. if your final display window cleanly places the cute matching card items exactly over each scrambled black-and-white square target area!
+* It's O.K. if the `Extracted Pink Box` window completely separates the pink box from the background space.
+
+---
+
+[back to the top page](https://www.google.com/search?q=../README.md)
 
 ```
 
