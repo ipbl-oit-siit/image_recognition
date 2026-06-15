@@ -1,4 +1,4 @@
-# Image processing basics for static images
+# Advanced Image Processing: HSV Color Space
 
 [back to the top page](../README.md)
 
