@@ -79,129 +79,28 @@ cv2.destroyAllWindows()
 By analyzing pixel values in the HSV color space, we can define a specific range of values to extract target objects from an image.
 
 #### :o:Exercise [Color Extraction]
+- Let's find the proper HSV thresholds of the **pink box** using the interactive tool, and then complete the program to extract it.
 
-* Let's find the proper HSV thresholds using an interactive application, and then create a program to extract only the **pink box** from an image.
+##### 1. Find HSV values using `color_picker.py`
+- Run the distributed `color_picker.py` program. 
+- **Click several different points** inside the pink box (such as the brightest areas, darker shaded areas, and average areas). 
+- Observe the $(H, S, V)$ values printed in the terminal each time to find the minimum and maximum values of the pink region.
 
-##### 1. Interactive HSV Checker (`check_hsv.py`)
-
-* Save the following code as `check_hsv.py` and run it. Click around the pink box area in your image to check the average $(H, S, V)$ values in the terminal, and look at the generated gradation map window.
 <div align="center">
   <img src="../image/hsv_clicker.png" width="300">
 </div>
 
-```python
-import numpy as np
-import cv2
+##### 2. Concept of Color Extraction
+To extract a specific color, we filter the HSV image by defining a lower and upper boundary for each channel. Pixels that fall within this range form a **Binary Mask** (White = Target color, Black = Others). By combining this mask with the original image using a bitwise AND operation, we can isolate the target object.
 
-# main function-----------------------------------------------------------------------------
-def main():
-    global img, cache, bar
+> 💡 **How to set `lower_pink` and `upper_pink`:**
+> Look at the multiple $(H, S, V)$ values you gathered by clicking around the box:
+> - **`lower_pink`**: Set values slightly lower than the *minimum* H, S, and V you observed.
+> - **`upper_pink`**: Set values slightly higher than the *maximum* H, S, and V you observed.
 
-    # read image
-    img = cv2.imread("./img/static_b.png")
-    if img is None:
-        print('ERROR: image file is not opened.')
-        exit(1)
-        
-    cache = img.copy()
-    bar = []
-
-    # display image
-    cv2.imshow("target image", img)
-    cv2.setMouseCallback("target image", mouse_event)
-
-    # keep all windows until "ESC" button is pressed
-    cv2.waitKey(0)
-    cv2.destroyAllWindows()
-
-# create HSV-gradation image window function-------------------------------------------------
-def createGradationImage(hue, sat, val):
-    cimg = np.zeros((256, 256, 3), np.uint8) # initialize hsv gradation image with 0
-    posHSV = [0, 0] # to show HSV value of clicked area
-
-    for j in range(256):
-        for i in range(256):
-            cimg[j,i,0] = np.uint8(hue) # Hue
-            cimg[j,i,1] = i             # Saturation
-            cimg[j,i,2] = j             # Value
-
-            # show HSV value area of click position
-            if j == np.uint8(val) and i == np.uint8(sat):
-                posHSV = [i, j]
-
-    # put text on Image
-    cv2.putText(cimg, "> satulation", (5, 10), cv2.FONT_HERSHEY_COMPLEX_SMALL, 0.5, (0, 0, 255))
-    cv2.putText(cimg, "|128", (128, 10), cv2.FONT_HERSHEY_COMPLEX_SMALL, 0.5, (0, 0, 255))
-    cv2.putText(cimg, "V value", (5, 20), cv2.FONT_HERSHEY_COMPLEX_SMALL, 0.5, (0, 0, 255))
-    cv2.putText(cimg, "- 128", (0, 131), cv2.FONT_HERSHEY_COMPLEX_SMALL, 0.5, (0, 0, 255))
-
-    # show HSV value of clicked area
-    cv2.rectangle(cimg, (posHSV[0] - 2, posHSV[1] - 2), (posHSV[0] + 2, posHSV[1] + 2), (0, 255, 255), 1)
-
-    cv2.imshow("color range", cv2.cvtColor(cimg, cv2.COLOR_HSV2BGR))
-
-# trackbar event function-------------------------------------------------------------------
-def changeTrackbarRange(val):
-    global av_s, av_v
-    # update gradation image
-    createGradationImage(val, av_s, av_v)
-
-# mouse event function----------------------------------------------------------------------
-def mouse_event(event, x, y, flg, prm):
-    global img, cache, bar
-    global av_h, av_s, av_v
-
-    # when mouse is moved
-    if event == cv2.EVENT_MOUSEMOVE:
-        # --clear image (keep mark of the latest clicked area)
-        mvcache = cache.copy()
-
-        # show mouse position
-        cv2.rectangle(mvcache, (x - 2, y - 2), (x + 2, y + 2), (0, 0, 255), 1)
-        cv2.imshow("target image", mvcache)
-
-    # when left button is clicked
-    elif event == cv2.EVENT_LBUTTONDOWN:
-        # --clear image (to target image)
-        cache = img.copy()
-
-        print("-- BGR <-> HSV -----------------------------------------------------------")
-
-        # average of each color components around pointing area
-        av_b = np.mean(img[max(0, y-2):y+2, max(0, x-2):x+2, 0])
-        av_g = np.mean(img[max(0, y-2):y+2, max(0, x-2):x+2, 1])
-        av_r = np.mean(img[max(0, y-2):y+2, max(0, x-2):x+2, 2])
-
-        print("(B,G,R) = (" + str(av_b) + ", " + str(av_g) + ", " + str(av_r) + ")")
-
-        # average of HSV components around pointing area
-        hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
-        av_h = np.mean(hsv[max(0, y-2):y+2, max(0, x-2):x+2, 0])
-        av_s = np.mean(hsv[max(0, y-2):y+2, max(0, x-2):x+2, 1])
-        av_v = np.mean(hsv[max(0, y-2):y+2, max(0, x-2):x+2, 2])
-
-        print("(H,S,V) = (" + str(av_h) + ", " + str(av_s) + ", " + str(av_v) + ")")
-        createGradationImage(av_h, av_s, av_v)
-
-        # track bar
-        cv2.namedWindow("color range", cv2.WINDOW_KEEPRATIO | cv2.WINDOW_NORMAL)
-        if bar == []:
-            bar = cv2.createTrackbar("Hue", "color range", int(av_h), 179, changeTrackbarRange)
-        else:
-            cv2.setTrackbarPos("Hue", "color range", int(av_h))
-
-        # show clicked area
-        cv2.rectangle(cache, (x - 2, y - 2), (x + 2, y + 2), (0, 255, 0), 1)
-        cv2.imshow("target image", cache)
-
-if __name__ == '__main__':
-    main()
-
-```
-
-##### 2. Extraction Program (`extract_color.py`)
-
-* Based on your measurement results from the interactive tool, define the pink thresholds and apply `cv2.inRange()` to create a binary mask image.
+##### 3. Complete the Extraction Program (`extract_color.py`)
+- Save the following code as `extract_color.py`. 
+- **Modify `lower_pink` and `upper_pink` values** by inputting the HSV range you discovered in Step 1, then run the program.
 
 ```python
 import cv2
@@ -218,7 +117,7 @@ def main():
     hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
 
     # 3. Define the range of pink color in HSV
-    # [Hue lower-upper, Saturation lower-upper, Value lower-upper]
+    # TODO: Input your measured HSV range here! [Hue, Saturation, Value]
     lower_pink = np.array([140,  50,  50])
     upper_pink = np.array([170, 255, 255])
 
