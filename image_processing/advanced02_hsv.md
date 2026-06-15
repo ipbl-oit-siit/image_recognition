@@ -22,9 +22,13 @@
 
 When using OpenCV (`cv2`), the data ranges are scaled to fit within 8-bit integer values ($0$ to $255$):
 
-* **Hue**: $0$ to $179$ (The actual angle $0$ to $360^\circ$ is divided by 2. For example, Hue = $38$ represents $38 \times 2 = 76^\circ$).
+* **Hue**: $0$ to $180$ (The actual angle $0$ to $360^\circ$ is divided by 2. For example, Hue = $38$ represents $38 \times 2 = 76^\circ$).
 * **Saturation**: $0$ to $255$ ($0$ to $100\%$).
 * **Value**: $0$ to $255$ ($0$ to $100\%$).
+
+<div align="center">
+  <img src="../image/hsv_circle.png" width="150"><img src="../image/hsv_cylinder.png" width="300">
+</div>
 
 #### :blue_square: Color conversion with `cv2`
 
@@ -81,6 +85,9 @@ By analyzing pixel values in the HSV color space, we can define a specific range
 ##### 1. Interactive HSV Checker (`check_hsv.py`)
 
 * Save the following code as `check_hsv.py` and run it. Click around the pink box area in your image to check the average $(H, S, V)$ values in the terminal, and look at the generated gradation map window.
+<div align="center">
+  <img src="../image/hsv_clicker.png" width="300">
+</div>
 
 ```python
 import numpy as np
