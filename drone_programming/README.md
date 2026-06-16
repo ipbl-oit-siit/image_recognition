@@ -403,42 +403,75 @@ Before performing any actual flight sequence, always execute these non-takeoff t
 ---
 
 ## :green_square: State Tracking & Decision Making
-### :red_square: Object Detection Stabilization via `detection_timer`
-- Prevent sudden or erratic drone behavior by tracking targets continuously over time using `detection_timer.py`.
-- This ensures the drone only acts when a target is stably detected for a specific duration (e.g., 3.0 seconds).
+### :red_square: Real-Time Stabilization Loop via `cv2.waitKey` & `DetectionTimer`
+- **Critical Requirement**: To control the drone safely in real time without video streaming lag, your main loop must run **completely non-blocking**.
+- Using `time.sleep()` inside the loop will cause the UDP video packet buffer to overflow, resulting in severe 2-3 second video lag and application freezes. 
+- You must ingest frames continuously using `VideoCapture` and control the iteration rate using **`cv2.waitKey(1)`**.
 
 #### :o:Practice[detection_timer]
 - Save the following sample code as a python file, and execute it. (`C:\oit\home\ipbl\sample_hula_timer.py`)
 - `sample_hula_timer.py`
     ```python
-    import time
-    from mylibs.detection_timer import DetectionTimer # use custom timer library
+    import cv2
+    from mylibs.my_av2 import VideoCapture
+    from mylibs.detection_timer import DetectionTimer
 
     def track_target_mission(duration_threshold=3.0):
-        # Initialize the custom timer with the required continuous seconds
+        # 1. Initialize custom timer and connect to the drone stream
         timer = DetectionTimer(target_seconds=duration_threshold)
         
-        print("Starting mission detection loop...")
-        while True:
-            # Simulated evaluation placeholder (e.g., if target_found inside your CV frame)
-            # Replace True with actual condition (e.g., 'ids is not None' or 'np.sum(mask) > 0')
-            is_detected = True 
-            
-            # Update the tracking metrics
-            is_stable, elapsed = timer.update(is_detected)
-            print(f"Tracking status - Elapsed: {elapsed:.1f}s / Target Stable: {is_stable}")
-            
-            if is_stable:
-                print(f"[SUCCESS] Target verified stably for {duration_threshold}s! Triggering action.")
-                break
+        video_source = 'udp://0.0.0.0:11111'
+        cap = VideoCapture(video_source)
+        
+        if not cap.isOpened():
+            print("[ERROR] Cannot connect to drone video stream.")
+            return
+
+        print("Starting real-time non-blocking detection loop...")
+        print("Press 'q' in the window to abort.")
+
+        try:
+            while True:
+                # 2. Ingest the latest frame immediately without blocking time
+                ret, frame = cap.read()
+                if not ret or frame is None:
+                    # If frame drop occurs, yield execution instantly to keep loop spinning
+                    if cv2.waitKey(1) & 0xFF == ord('q'):
+                        break
+                    continue
                 
-            time.sleep(0.5)
+                # 3. Target evaluation placeholder
+                # Replace True with actual vision logic component (e.g., 'ids is not None')
+                is_detected = True 
+                
+                # 4. Update the tracking metrics on a frame-by-frame basis
+                is_stable, elapsed = timer.update(is_detected)
+                
+                # Render HUD feedback onto the frame
+                status_text = f"Lock: {elapsed:.1f}s / Target Stable: {is_stable}"
+                color = (0, 255, 0) if is_stable else (0, 0, 255)
+                cv2.putText(frame, status_text, (20, 40), cv2.FONT_HERSHEY_SIMPLEX, 0.7, color, 2)
+                
+                cv2.imshow("Real-Time Tracking Window", frame)
+                
+                # 5. If verified stably for 3.0 seconds, break to execute next control command
+                if is_stable:
+                    print(f"\n[SUCCESS] Target verified stably for {duration_threshold}s!")
+                    break
+                    
+                # 6. Use minimal 1ms non-blocking wait to refresh GUI and check keyboard abort
+                if cv2.waitKey(1) & 0xFF == ord('q'):
+                    print("[USER ABORT] Mission interrupted.")
+                    break
+        finally:
+            cap.release()
+            cv2.destroyAllWindows()
     ```
 
 > [!NOTE]
 > ### Explanation
-> - **`DetectionTimer(target_seconds=...)`**: Creates a tracker instance that benchmarks sequential detection flags against an epoch duration boundary.
-> - **`timer.update(is_detected)`**: Compiles live detection inputs. Returns `is_stable=True` if and only if the detection remains consistently active until the configured duration expires.
+> - **`cap.read()` inside a fast loop**: Frees the network buffer continuously, ensuring the frame processed is always a "fresh live frame" rather than an old backlogged buffer.
+> - **`cv2.waitKey(1)`**: Replaces `time.sleep()`. It yields CPU execution for exactly 1 millisecond to handle internal OS window refresh events and key inputs without stalling the image acquisition workflow.
 
 ---
 
