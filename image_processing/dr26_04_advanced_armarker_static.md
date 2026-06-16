@@ -27,7 +27,7 @@ corners, ids, rejectedImgPoints = cv2.aruco.detectMarkers(img, dictionary)
 
 #### :o:Practice [AR Marker Detection]
 
-* Save the following sample code as a python file, and execute it. (`C:/oit/py25en/source/sample_marker.py`)
+* Save the following sample code as a python file, and execute it. (`C:/oit/home/ipbl/sample_marker.py`)
 * `sample_marker.py`
 
 ```python
