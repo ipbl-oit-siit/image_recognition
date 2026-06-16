@@ -63,6 +63,16 @@ if __name__ == '__main__':
 
 * It is O.K., if the window pops up and you can observe green borders and unique ID labels drawn exactly over the black-and-white markers.
 
+> 💡 **Hint: How to measure the "size" (distance) of an AR Marker**
+> You can estimate how close the marker is by calculating its diagonal distance (pixel distance between Top-Left [0] and Bottom-Right [2]). This value is highly robust against marker rotation and directly corresponds to the physical distance.
+> 
+> ```Python
+> 
+> # Calculate diagonal distance using numpy
+> size_px = np.linalg.norm(marker_corners[2] - marker_corners[0])
+> 
+> ```
+
 ---
 
 ### :orange_square: Advanced Application: Image Overlay using AR Marker
