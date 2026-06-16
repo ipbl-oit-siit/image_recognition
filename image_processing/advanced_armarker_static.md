@@ -65,7 +65,7 @@ if __name__ == '__main__':
 
 > [!TIP]
 >  **Hint: How to measure the "size" (distance) of an AR Marker**
-> You can estimate how close the marker is by calculating its diagonal distance (pixel distance between Top-Left [0] and Bottom-Right [2]). This value is highly robust against marker rotation and directly corresponds to the physical distance.
+>  You can estimate how close the marker is by calculating its diagonal distance (pixel distance between Top-Left [0] and Bottom-Right [2]). This value is highly robust against marker rotation and directly corresponds to the physical distance.
 > 
 > ```Python
 > 
