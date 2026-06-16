@@ -32,10 +32,10 @@
 
 ## :green_square: Image processing with Python3
 ### :red_square: Directory structure for Image processing
-- The python programs (.py) have to be put under the directory `source`. And the all image files are saved/downloaded in the directory `img` and read from there.
+- The python programs (.py) have to be put under the directory `ipbl`. And the all image files are saved/downloaded in the directory `img` and read from there.
 - Directory stucture
     ```text
-    +[ibpl]         <== work directory ("C:\oit\home\ipbl")
+    +[ipbl]         <== work directory ("C:\oit\home\ipbl")
     |-+[img]            <== this directory already exists.
     | |-+[standard]
     | | |--Aerial.bmp
