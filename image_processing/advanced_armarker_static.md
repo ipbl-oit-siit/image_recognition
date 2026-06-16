@@ -1,38 +1,31 @@
-# Advanced Image Processing: AR Marker Generation and Detection
+```markdown
+# Advanced Image Processing: AR Marker Detection and Overlay
 
 [back to the top page](../README.md)
 
 ---
-### :orange_square: AR Marker
+### :orange_square: AR Marker (ArUco Marker)
 
-* An **AR marker** (such as an ArUco marker) is a distinct square pattern used in computer vision to determine positions, orientations, and object identities.
-
-
+* An **AR marker** (ArUco marker) is a distinct square pattern used in computer vision to determine positions, orientations, and object identities.
 
 #### Features of AR marker
-
-* It is **reversibly convertible** between black-and-white grid matrices and binary IDs.
-* It allows for more **intuitive coordinate handling**, making it easy to specify areas like "a 3D space relative to a physical object".
+* It is **robust against lighting changes**, making it more reliable than color-based extraction (HSV).
+* It allows for **precise coordinate handling**, making it easy to track a physical object's 3D space and orientation.
 
 #### Data Range in OpenCV
-
-When using OpenCV (`cv2`), the system utilizes specific parameters to handle marker generation and object position parameters:
-
+When using OpenCV (`cv2.aruco`), the detection system utilizes specific parameters:
 * **Dictionary**: Selection of predefined marker pattern sheets (e.g., `DICT_4X4_50`).
-* **ID**: $0$ to $49$ (The individual identifier assigned to each generated square pattern).
-* **SidePixels**: Width and height dimensions required for image pixel allocation.
+* **ID**: The individual identifier assigned to each generated square pattern (e.g., $0$ to $49$).
+* **Corners**: A list containing the 4 outer corner coordinates ($x, y$) of the detected marker.
 
-
-
-#### :blue_square: Color conversion with `cv2`
-
-* You can detect markers embedded inside a BGR image using the following function:
+#### :blue_square: Marker detection with `cv2`
+* You can detect markers embedded inside an image using the following function:
 ```python
 corners, ids, rejectedImgPoints = cv2.aruco.detectMarkers(img, dictionary)
 
 ```
 
-#### :o:Practice[AR Marker]
+#### :o:Practice [AR Marker Detection]
 
 * Save the following sample code as a python file, and execute it. (`C:/oit/py25en/source/sample_marker.py`)
 * `sample_marker.py`
@@ -41,57 +34,58 @@ corners, ids, rejectedImgPoints = cv2.aruco.detectMarkers(img, dictionary)
 import cv2
 
 def main():
-    # Select a 4x4 pixel marker dictionary containing 50 unique IDs
+    # 1. Load the scene containing generated markers
+    img = cv2.imread("balanced_random_markers.png")
+    if img is None:
+        print("ERROR: balanced_random_markers.png not found.")
+        return
+
+    # 2. Select a 4x4 pixel marker dictionary containing 50 unique IDs
     dictionary = cv2.aruco.getPredefinedDictionary(cv2.aruco.DICT_4X4_50)
 
-    # TODO: Fill appropriate integers into id and sidePixels!
-    id = 
-    sidePixels = 
+    # 3. Detect markers
+    corners, ids, _ = cv2.aruco.detectMarkers(img, dictionary)
     
-    # Generate the marker image
-    try:
-        marker = cv2.aruco.drawMarker(dictionary, id, sidePixels)
-    except AttributeError:
-        marker = cv2.aruco.generateImageMarker(dictionary, id, sidePixels)
+    # 4. Draw borders around detected markers
+    if ids is not None:
+        cv2.aruco.drawDetectedMarkers(img, corners, ids)
+        print(f"Detected IDs: {ids.flatten()}")
     
-    cv2.imwrite('marker.png', marker)
+    cv2.imshow('Detected Markers', img)
+    cv2.waitKey(0)
+    cv2.destroyAllWindows()
 
 if __name__ == '__main__':
     main()
 
 ```
 
-* It is O.K., if the windows pop up and you can observe how the components of Hue, Saturation, and Value are separated.
+* It is O.K., if the window pops up and you can observe green borders and unique ID labels drawn exactly over the black-and-white markers.
+
+---
 
 ### :orange_square: Advanced Application: Image Overlay using AR Marker
 
-By analyzing pixel values in the AR marker space, we can define a specific range of coordinates to overlay target objects onto an image.
+By analyzing the four corner coordinates of the detected AR marker, we can calculate a **Perspective Transformation** matrix and warp a target image to fit precisely on top of the marker area.
 
 #### :o:Exercise [AR Marker Overlay]
 
-* Let's find the proper HSV thresholds of the **pink box** using the interactive tool, and then complete the program to extract it.
+* Let's complete the program to detect the markers from the scene and overlay matching cat-themed playing card images onto them.
 
-##### 1. Find HSV values using `color_picker.py`
+##### 1. Concept of Perspective Overlay
 
-* Run the distributed [`color_picker.py`](https://www.google.com/search?q=color_picker.py) program.
-* **Click several different points** inside the pink box (such as the brightest areas, darker shaded areas, and average areas).
-* Observe the $(H, S, V)$ values printed in the terminal each time to find the minimum and maximum values of the pink region.
+To overlay an image onto the detected marker, we map the four corners of the source card image (`src_pts`) to the four detected marker coordinates (`dst_pts`). By calculating a transformation matrix `M` via `cv2.getPerspectiveTransform()`, we can warp the card image to match the perspective and tilt of the marker in the scene.
 
-##### 2. Concept of Color Extraction
-
-To extract a specific color, we filter the HSV image by defining a lower and upper boundary for each channel. Pixels that fall within this range form a **Binary Mask** (White = Target color, Black = Others). By combining this mask with the original image using a bitwise AND operation, we can isolate the target object.
-
-> 💡 **How to set `lower_pink` and `upper_pink`:**
-> Look at the multiple $(H, S, V)$ values you gathered by clicking around the box:
-> * **`lower_pink`**: Set values slightly lower than the *minimum* H, S, and V you observed.
-> * **`upper_pink`**: Set values slightly higher than the *maximum* H, S, and V you observed.
+> 💡 **Hint for the TODO sections:**
+> * `cv2.aruco.detectMarkers` returns a list of corners and an array of detected `ids`. Make sure your output variable names match the validation code (`ids is None`).
+> * The `corners` list stores arrays for each detected marker. You need to access the target marker's array index and reshape it to a simple $(4, 2)$ grid.
 > 
 > 
 
-##### 3. Complete the Extraction Program (`extract_color.py`)
+##### 2. Complete the Overlay Program (`ipB_detectARmarker.py`)
 
-* Open the distributed [`ipB_detectARmarker.py`](https://www.google.com/search?q=ipB_detectARmarker.py) file.
-* **Complete the `TODO` sections** to detect the markers from the scene image (`balanced_random_markers.png`) and overlay the matching cat-themed playing card images (`0.png` to `6.png`) based on the detected IDs.
+* Open the distributed `ipB_detectARmarker.py` file.
+* **Complete the `TODO` sections** to detect markers and apply the perspective warp.
 
 ```python
 import cv2
@@ -131,8 +125,8 @@ def main():
     except AttributeError:
         dictionary = cv2.aruco.getPredefinedDictionary(0)
         
-    # TODO: Detect the markers embedded inside the scene using appropriate variables
-    ________, ______, _ = cv2.aruco.detectMarkers(scene_img, dictionary)
+    # TODO: Detect the markers. Assign output to match the "ids" variable below!
+    corners, ids, _ = cv2.aruco.detectMarkers(scene_img, dictionary)
 
     if ids is None:
         print("No AR markers were detected.")
@@ -141,8 +135,8 @@ def main():
     # 3. Loop through every detected marker and overlay its designated image
     for i, marker_id in enumerate(ids.flatten()):
         
-        # TODO: Extract the 4 corner coordinates for the current marker and reshape to (4, 2)
-        marker_corners = _________[i].reshape((4, 2))
+        # TODO: Extract the 4 corner coordinates for the current marker index "i" and reshape to (4, 2)
+        marker_corners = corners[i].reshape((4, 2))
         
         # Determine the target overlay card file name based on the detected ID
         card_file = get_card_filename(marker_id)
@@ -187,10 +181,12 @@ if __name__ == '__main__':
 
 ```
 
-* It's O.K. if the `Extracted Pink Box` window completely separates the pink box from the background space.
+* It's O.K. if the `Final Card Overlay Result` window completely replaces the black-and-white markers with the warped playing card images seamlessly.
 
 ---
 
 [back to the top page](https://www.google.com/search?q=../README.md)
+
+```
 
 ```
