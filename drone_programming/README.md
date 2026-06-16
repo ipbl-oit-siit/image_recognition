@@ -10,19 +10,75 @@
 ## prerequisite
 - "[Python Environment for iPBL26](https://github.com/ipbl-oit-siit/portal/blob/main/setup/python%2Bvscode.md)" has already been installed.
 - The python programs (.py) have to be put under the directory `C:\oit\py26\ipbl`. 
-- The custom communication and video library `my_av2.py` must be located under the directory `mylibs`.
+- The custom libraries `my_av2.py` and `detection_timer.py` must be located under the directory `mylibs`.
 
 ---
 
-## :green_square: Communication & Initialization
-### :red_square: Core Network Settings
-- Establish a connection with the aircraft using the standard IP and Port configurations.
+## :green_square: Pre-Flight Safety & Connection Tests
+Before performing any actual flight sequence, always execute these non-takeoff tests to ensure safe hardware and video stream operations.
 
-#### :o:Practice[communication]
-- Save the following sample code as a python file to verify the network parameters. (`C:\oit\home\ipbl\sample_hula_init.py`)
-- `sample_hula_init.py`
+### :red_square: Step 1: Communication & Battery Status Test
+- Establish network synchronization and retrieve the current battery level without starting the motors.
+
+#### :o:Practice[ping_and_battery]
+- Save the following sample code as a python file, and execute it. (`C:\oit\home\ipbl\sample_hula_ping.py`)
+- `sample_hula_ping.py`
     ```python
     import socket
+    import sys
+
+    HULA_IP = "192.168.10.1"
+    HULA_PORT = 8889
+    CONTROL_ADDRESS = (HULA_IP, HULA_PORT)
+
+    # Initialize UDP Socket
+    sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    sock.bind(("", 9000))
+
+    def send_test_command(command: str):
+        try:
+            print(f"[TX]: {command}")
+            sock.sendto(command.encode('utf-8'), CONTROL_ADDRESS)
+            
+            sock.settimeout(3.0)
+            data, _ = sock.recvfrom(1518)
+            response = data.decode('utf-8').strip()
+            print(f"[RX]: {response}")
+            return response
+        except socket.timeout:
+            print("[ERROR] Connection timeout. Check Wi-Fi connection to the drone.")
+            sys.exit(1)
+
+    def main():
+        print("--- Initiating Drone Communication Test ---")
+        # 1. Enter SDK mode
+        send_test_command("command")
+        
+        # 2. Query Battery Capacity
+        battery = send_test_command("battery?")
+        print(f"\n[STATUS] Connection successful. Battery Level: {battery}%")
+
+    if __name__ == "__main__":
+        main()
+    ```
+
+> [!NOTE]
+> ### Explanation
+> - **`command`**: Instructs the drone to enter its automated SDK control state.
+> - **`battery?`**: Queries the internal telemetry block. Returns an integer string from `0` to `100`.
+
+---
+
+### :red_square: Step 2: Ground Motor Rotation Test (No Takeoff)
+- Spin the propellers at a low idle speed on the ground to check motor status without generating lift.
+
+#### :o:Practice[motor_test]
+- Save the following sample code as a python file, and execute it. (`C:\oit\home\ipbl\sample_hula_motor_test.py`)
+- `sample_hula_motor_test.py`
+    ```python
+    import socket
+    import time
+    import sys
 
     HULA_IP = "192.168.10.1"
     HULA_PORT = 8889
@@ -30,12 +86,113 @@
 
     sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     sock.bind(("", 9000))
+
+    def send_command(command: str):
+        try:
+            print(f"[TX]: {command}")
+            sock.sendto(command.encode('utf-8'), CONTROL_ADDRESS)
+            sock.settimeout(3.0)
+            data, _ = sock.recvfrom(1518)
+            response = data.decode('utf-8').strip()
+            print(f"[RX]: {response}")
+            return response
+        except socket.timeout:
+            print("[!!! EMERGENCY !!!] Lost connection during motor test.")
+            sys.exit(1)
+
+    def main():
+        send_command("command")
+        
+        try:
+            print("\n--- Starting Propeller Rotation Test ---")
+            # Spin the motors at idle speed on the ground
+            send_command("motoron")
+            print("Motors spinning at idle speed... checking hardware status.")
+            time.sleep(3)
+            
+            # Turn off the motors immediately
+            send_command("motoroff")
+            print("Motors stopped safely.")
+            
+        except KeyboardInterrupt:
+            print("\n[USER INTERRUPT] Stopping motors immediately.")
+            send_command("motoroff")
+
+    if __name__ == "__main__":
+        main()
     ```
 
 > [!NOTE]
 > ### Explanation
-> - **`socket.SOCK_DGRAM`**: Creates a UDP socket used for fast, low-overhead communication with the drone.
-> - **`sock.bind`**: Binds the local port `9000` to listen for status responses sent back from the aircraft.
+> - **`motoron`**: Starts all four propulsion modules at a minimal idle rate. The aircraft will remain firmly on the ground.
+> - **`motoroff`**: Instantly cuts off the motor rotation queue for safety preservation.
+
+---
+
+### :red_square: Step 3: Ground Camera Stream Test (No Takeoff)
+- Verify the video pipeline and latency by streaming the camera feed to an OpenCV window while the drone stays securely on the ground.
+
+#### :o:Practice[stream_test]
+- Save the following sample code as a python file, and execute it. (`C:\oit\home\ipbl\sample_hula_stream_test.py`)
+- `sample_hula_stream_test.py`
+    ```python
+    import cv2
+    import socket
+    from mylibs.my_av2 import VideoCapture
+
+    HULA_IP = "192.168.10.1"
+    HULA_PORT = 8889
+    CONTROL_ADDRESS = (HULA_IP, HULA_PORT)
+
+    def main():
+        # 1. Initialize control socket and enable video command
+        sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        sock.bind(("", 9000))
+        
+        print("[TX]: command")
+        sock.sendto(b"command", CONTROL_ADDRESS)
+        
+        print("[TX]: streamon")
+        sock.sendto(b"streamon", CONTROL_ADDRESS)
+
+        # 2. Connect to the custom PyAV video pipeline
+        video_source = 'udp://0.0.0.0:11111'
+        cap = VideoCapture(video_source)
+
+        if not cap.isOpened():
+            print("[ERROR] Cannot open drone video stream.")
+            return
+
+        print("\n--- Video Stream Started ---")
+        print("Press 'q' inside the video window to quit.")
+
+        while True:
+            ret, frame = cap.read()
+            if not ret or frame is None:
+                print("[WARNING] Frame dropped.")
+                continue
+
+            # Display the live frame
+            cv2.imshow("Hula-JP Ground Camera Test", frame)
+
+            # Safely exit loop when 'q' key is pressed
+            if cv2.waitKey(1) & 0xFF == ord('q'):
+                print("Closing video stream...")
+                break
+
+        # 3. Clean up resources
+        cap.release()
+        cv2.destroyAllWindows()
+        print("Resources released successfully.")
+
+    if __name__ == "__main__":
+        main()
+    ```
+
+> [!NOTE]
+> ### Explanation
+> - **`streamon`**: Commands the drone backend to start broadcasting its video frames via UDP port 11111.
+> - **`cv2.waitKey(1) & 0xFF == ord('q')`**: Monitors keyboard events every millisecond. Intercepts character comparisons to provide an intentional, non-crash exit path.
 
 ---
 
@@ -148,7 +305,7 @@
 
 ## :green_square: Real-Time Image Processing
 ### :red_square: Frame Acquisition via `my_av2`
-- Capture a single real-time frame using the custom low-latency video library `my_av2.py`.
+- Capture a real-time frame by passing the video source into the custom OpenCV-compatible `VideoCapture` class.
 
 #### :o:Practice[video_capture]
 - Save the following sample code as a python file, and execute it. (`C:\oit\home\ipbl\sample_hula_video.py`)
@@ -158,8 +315,12 @@
     from mylibs.my_av2 import VideoCapture # use custom library for iPBL26
 
     def get_camera_frame():
-        cap = VideoCapture() # open camera stream from drone
-        if not cap.is_opened():
+        # Pass a camera index (int) or a streaming URL string (str) as the source
+        # Example: 0 for local camera, 'udp://0.0.0.0:11111' for drone video stream
+        video_source = 'udp://0.0.0.0:11111'
+        cap = VideoCapture(video_source) 
+        
+        if not cap.isOpened():
             print("Failed to open camera pipeline")
             return None
 
@@ -173,7 +334,7 @@
 
 > [!NOTE]
 > ### Explanation
-> - **`from mylibs.my_av2 import VideoCapture`**: Imports the custom video capture class designed to decode drone camera streams with minimal delay.
+> - **`VideoCapture(video_source)`**: Dynamically initializes the stream container depending on the variable type. It accepts an integer for OpenCV webcam streaming, or a string for PTS-based accurate VFR video decoding via PyAV.
 
 ---
 
@@ -237,6 +398,47 @@
 
 ---
 
+## :green_square: State Tracking & Decision Making
+### :red_square: Object Detection Stabilization via `detection_timer`
+- Prevent sudden or erratic drone behavior by tracking targets continuously over time using `detection_timer.py`.
+- This ensures the drone only acts when a target is stably detected for a specific duration (e.g., 3.0 seconds).
+
+#### :o:Practice[detection_timer]
+- Save the following sample code as a python file, and execute it. (`C:\oit\home\ipbl\sample_hula_timer.py`)
+- `sample_hula_timer.py`
+    ```python
+    import time
+    from mylibs.detection_timer import DetectionTimer # use custom timer library
+
+    def track_target_mission(duration_threshold=3.0):
+        # Initialize the custom timer with the required continuous seconds
+        timer = DetectionTimer(target_seconds=duration_threshold)
+        
+        print("Starting mission detection loop...")
+        while True:
+            # Simulated evaluation placeholder (e.g., if target_found inside your CV frame)
+            # Replace True with actual condition (e.g., 'ids is not None' or 'np.sum(mask) > 0')
+            is_detected = True 
+            
+            # Update the tracking metrics
+            is_stable, elapsed = timer.update(is_detected)
+            print(f"Tracking status - Elapsed: {elapsed:.1f}s / Target Stable: {is_stable}")
+            
+            if is_stable:
+                print(f"[SUCCESS] Target verified stably for {duration_threshold}s! Triggering action.")
+                break
+                
+            time.sleep(0.5)
+    ```
+
+> [!NOTE]
+> ### Explanation
+> - **`DetectionTimer(target_seconds=...)`**: Creates a tracker instance that benchmarks sequential detection flags against an epoch duration boundary.
+> - **`timer.update(is_detected)`**: Compiles live detection inputs. Returns `is_stable=True` if and only if the detection remains consistently active until the configured duration expires.
+
+---
+
+## :green_square: Emergency Management & Safety Routines
 ### :red_square: Advanced Failsafes & Emergency Methods
 - Modular functions to prevent crashes and safely handle flight anomalies based on battery levels.
 
