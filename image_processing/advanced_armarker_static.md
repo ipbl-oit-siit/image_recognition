@@ -19,6 +19,7 @@ When using OpenCV (`cv2.aruco`), the detection system utilizes specific paramete
 
 #### :blue_square: Marker detection with `cv2`
 * You can detect markers embedded inside an image using the following function:
+
 ```python
 corners, ids, rejectedImgPoints = cv2.aruco.detectMarkers(img, dictionary)
 
@@ -30,6 +31,7 @@ corners, ids, rejectedImgPoints = cv2.aruco.detectMarkers(img, dictionary)
 * `sample_marker.py`
 
 ```python
+
 import cv2
 
 def main():
@@ -87,6 +89,7 @@ To overlay an image onto the detected marker, we map the four corners of the sou
 * **Complete the `TODO` sections** to detect markers and apply the perspective warp.
 
 ```python
+
 import cv2
 import numpy as np
 import os
