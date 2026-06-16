@@ -183,8 +183,6 @@ if __name__ == '__main__':
 * It's O.K. if the `Final Card Overlay Result` window completely replaces the black-and-white markers with the warped playing card images seamlessly.
 
 ---
-
-[back to the top page](https://www.google.com/search?q=../README.md)
-
+[back to the top page](../README.md)
 
 ```
