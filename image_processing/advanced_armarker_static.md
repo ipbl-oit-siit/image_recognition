@@ -3,7 +3,7 @@
 [back to the top page](../README.md)
 
 ---
-### :orange_square: AR Marker (ArUco Marker)
+### :red_square: AR Marker (ArUco Marker)
 
 * An **AR marker** (ArUco marker) is a distinct square pattern used in computer vision to determine positions, orientations, and object identities.
 
@@ -77,7 +77,7 @@ if __name__ == '__main__':
 
 ---
 
-### :orange_square: Advanced Application: Image Overlay using AR Marker
+### :red_square: Advanced Application: Image Overlay using AR Marker
 
 By analyzing the four corner coordinates of the detected AR marker, we can calculate a **Perspective Transformation** matrix and warp a target image to fit precisely on top of the marker area.
 
