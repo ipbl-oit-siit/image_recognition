@@ -63,7 +63,8 @@ if __name__ == '__main__':
 
 * It is O.K., if the window pops up and you can observe green borders and unique ID labels drawn exactly over the black-and-white markers.
 
-> 💡 **Hint: How to measure the "size" (distance) of an AR Marker**
+> [IMPORTANT]
+>  **Hint: How to measure the "size" (distance) of an AR Marker**
 > You can estimate how close the marker is by calculating its diagonal distance (pixel distance between Top-Left [0] and Bottom-Right [2]). This value is highly robust against marker rotation and directly corresponds to the physical distance.
 > 
 > ```Python
@@ -87,7 +88,8 @@ By analyzing the four corner coordinates of the detected AR marker, we can calcu
 
 To overlay an image onto the detected marker, we map the four corners of the source card image (`src_pts`) to the four detected marker coordinates (`dst_pts`). By calculating a transformation matrix `M` via `cv2.getPerspectiveTransform()`, we can warp the card image to match the perspective and tilt of the marker in the scene.
 
-> 💡 **Hint for the TODO sections:**
+> [IMPORTANT]
+>  **Hint for the TODO sections:**
 > * `cv2.aruco.detectMarkers` returns a list of corners and an array of detected `ids`. Make sure your output variable names match the validation code (`ids is None`).
 > * The `corners` list stores arrays for each detected marker. You need to access the target marker's array index and reshape it to a simple $(4, 2)$ grid.
 > 
