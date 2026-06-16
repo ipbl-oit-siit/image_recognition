@@ -33,9 +33,9 @@ is_cleared = timer.update(is_detected, current_msec)
 
 ```
 
-##### 2. Complete the Trigger Program (`ipB_time_trigger.py`)
+##### 2. Complete the Trigger Program (`imp_time_trigger.py`)
 
-* Open the distributed `ipB_time_trigger.py` file.
+* Open the distributed `imp_time_trigger.py` file.
 * **Complete the `TODO` sections** to calculate the diagonal size of the marker, filter for ID 2, and update the timer.
 
 ```python
@@ -129,8 +129,8 @@ Whether you are detecting a 2D ArUco marker or a physical colored object like a 
 ### :o:Exercise 2 [Time-Based Color Verification]
 * Let's complete another program that triggers an event when a **Pink Box** is stably detected for **3 seconds (3000ms)** at close range.
 
-##### 1. Complete the Color Trigger Program (`ipB_color_trigger.py`)
-* Open the distributed `ipB_color_trigger.py` file.
+##### 1. Complete the Color Trigger Program (`imp_color_trigger.py`)
+* Open the distributed `imp_color_trigger.py` file.
 * **Complete the `TODO` sections** to calculate the diagonal length of the bounding box using `np.sqrt()`, and update the same timer structure.
 
 ```python
