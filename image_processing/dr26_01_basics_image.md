@@ -1,342 +1,271 @@
-# Image processing basics for static images
+# Image processing and control for Hula-JP Drone
 
 [back to the top page](../README.md)
 
 ---
 
 ## Objectives
-- This page explains basics of digital images and image processing with Python3.
+- This page explains basics of Hula-JP drone control and real-time image analysis with Python3.
 
 ## prerequisite
 - "[Python Environment for iPBL26](https://github.com/ipbl-oit-siit/portal/blob/main/setup/python%2Bvscode.md)" has already been installed.
-- The python programs (.py) have to be put under the directory `C:\oit\py26\ipbl`. And the all image files are saved/downloaded in the directory `img` and read from there.
+- The python programs (.py) have to be put under the directory `C:\oit\py26\ipbl`. 
+- The custom communication and video library `my_av2.py` must be located under the directory `mylibs`.
 
-## :green_square: Basics of digital images
-### :red_square: Color (Additive color)
-- Many colors can be created by mixing the primary colors (Blue, Green, Red).<br>
-    <image src="../image/Color-additive-mixing.png" height=25% width=25%><br>
-    Additive color mixing([wikipedia](https://commons.wikimedia.org/wiki/File:Color-additive-mixing.png))
+---
 
-### :red_square: Digital images
-- Digital images consist of many pixels. Pixel is the smallest unit in image space.
-- Each pixel has a color (three values: Blue, Green, Red).<br>
-    <image src="../image/pixels.png"><br>
-    Digital image & pixels
+## :green_square: Communication & Initialization
+### :red_square: Core Network Settings
+- Establish a connection with the aircraft using the standard IP and Port configurations.
 
-### :red_square: Data structure of digital images
-- Digital color images can be represented by 3 dimensional array.<br>
-    <image src="../image/imageArray.png" height=30% width=30%><br>
-    Color image array
-- Range of pixel value is `0` to `255` (8bit). Thus, each pixel can create 16,777,216 (`=(256)^3`) colors.
-
-
-## :green_square: Image processing with Python3
-### :red_square: Directory structure for Image processing
-- The python programs (.py) have to be put under the directory `ipbl`. And the all image files are saved/downloaded in the directory `img` and read from there.
-- Directory stucture
-    ```text
-    +[ipbl]         <== work directory ("C:\oit\home\ipbl")
-    |-+[img]            <== this directory already exists.
-    | |-+[standard]
-    | | |--Aerial.bmp
-    | | |--...
-    | | |--Mandrill.png   <== this image already exists.("C:\oit\home\ipbl\img\standard\Mandrill.bmp")
-    | | |--...
-    | | |
-    | | |-+[mono]
-    | |   |--Airplane.bmp
-    | |   |--...
-    | |
-    | |--image files(.jpg, png, bmp, etc)   <== save new image files at this place.
-    | |--xxx.jpg         <== this image does not exist now.("C:\oit\home\ipbl\img\xxx.jpg")
-    | |--xxx.png
-    | |--xxx.bmp
-    | |--...
-    |
-    |-+[learned_models]
-    |
-    |-+[mylibs]
-    | |--my_av2.py
-    | |--detection_timer.py
-    | |--...
-    |
-    |--hello_opencv.py
-    |--hello_python.py
-    |--sample1.py
-    |--sample2.py
-    |--sample3.py
-    |--sample4.py
-    |--sample5.py
-    |--sample6.py
-    |--sample7.py
-    |--sample8.py
-    |--...
-    ```
-
-### :red_square: Basics of Python3 program
-- more information: [python3.12 docs](https://docs.python.org/3.12/index.html)
-- Indentation is very important in Python programming. Indentation level is used to determine the coding block (the grouping of statements) and scope of variables.
-- Variable is accessible from same block or nested block. Variable doesn't need to declare before using. Type of variable is determined by value to be assigned.Variable declared "global" has globally scope.
-- A comment starts with a hash character `#`<br>
-    <image src="../image/pys.png"><br>
-
-#### prerequisite
-- Open the VSCode by the running the `py26_start` on the Desktop. Confirm that the current directory shown in the terminal window is `py26`.
-- The python program (.py) has to be made in `C:\oit\home\ipbl` folder. And all image files are saved (downloaded) in `img` folder and read from there.
-- You can run a python program with the input of the following command in the terminal.
-    ```sh
-    C:\oit\home\ipbl> python XXX.py
-    ```
-#### :o:Practice[basic]
-- Save the following sample code as a python file and execute it. (`C:\oit\home\ipbl\sample_basic.py`)
-    <image src="../image/file_sample_basic.jpg" width=50%, height=50%><!--本来，差し替えが必要-->
-- `sample_basic.py`
+#### :o:Practice[communication]
+- Save the following sample code as a python file to verify the network parameters. (`C:\oit\home\ipbl\sample_hula_init.py`)
+- `sample_hula_init.py`
     ```python
-    sum = 0
-    for i in range(10):
-        sum = sum + i
-        print(str(i) + ":" + str(sum))
+    import socket
 
-    if sum <= 30 :
-        print("sum is under 30")
-    elif sum <= 50 :
-        print("sum is between 30 and 50")
-    else:
-        print("sum is over 50")
+    HULA_IP = "192.168.10.1"
+    HULA_PORT = 8889
+    CONTROL_ADDRESS = (HULA_IP, HULA_PORT)
+
+    sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    sock.bind(("", 9000))
     ```
-- It is O.K., if it is executed as follows.
-  ```sh
-  C:\oit\home\ipbl> python sample_basic.py
-  0:0
-  1:1
-  2:3
-  3:6
-  4:10
-  5:15
-  6:21
-  7:28
-  8:36
-  9:45
-  sum is between 30 and 50
-  ```
 
-### :red_square: Important modules in image processing
-#### :blue_square: `numpy` (short name: `np`)
-- more information: [numpy docs](https://numpy.org/doc/stable/)
-- This module is the fundamental package for scientific computing.
-    - a powerful `N`-dimensional array object
-    - useful linear algebra, Fourier transform, and random number capabilities
+> [!NOTE]
+> ### Explanation
+> - **`socket.SOCK_DGRAM`**: Creates a UDP socket used for fast, low-overhead communication with the drone.
+> - **`sock.bind`**: Binds the local port `9000` to listen for status responses sent back from the aircraft.
 
-#### :o:Practice[np]
-- Save the following sample code as a python file and execute it. (`C:\oit\home\ipbl\sample_numpy.py`)
-- `sample_numpy.py`
+---
+
+## :green_square: Flight Control & Safety
+### :red_square: Main Control Template with Integrated Failsafes
+- A robust program template that guarantees a safe landing (`finally` block) even if the script encounters errors or user interruptions (`Ctrl+C`).
+
+#### :o:Practice[failsafe_template]
+- Save the following sample code as a python file and execute it. (`C:\oit\home\ipbl\sample_main_failsafe.py`)
+- `sample_main_failsafe.py`
     ```python
-    import numpy as np
-    a = np.zeros((4, 3, 2))  # make zero array whose size is (4,3,2)
-    a[0:2, 1:2, 1] = 1  # Note that, 0:2 means 0 to (2-1), and 1:2 means 1.
-    print(a)
-    print(np.average(a))
-    print(np.max(a))
-    ```
-- It is O.K., if it is executed as follows.
-    ```sh
-    C:\oit\home\ipbl> python sample_numpy.py
-    [[[0. 0.]
-        [0. 1.]
-        [0. 0.]]
+    import socket
+    import sys
+    import time
 
-    [[0. 0.]
-        [0. 1.]
-        [0. 0.]]
+    HULA_IP = "192.168.10.1"
+    HULA_PORT = 8889
+    CONTROL_ADDRESS = (HULA_IP, HULA_PORT)
 
-    [[0. 0.]
-        [0. 0.]
-        [0. 0.]]
+    sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    sock.bind(("", 9000))
 
-    [[0. 0.]
-        [0. 0.]
-        [0. 0.]]]
-    0.08333333333333333
-    1.0
-    ```
-
-#### :blue_square: `cv2` (opencv-python)
-- more information: [OpenCV3.4.18 docs](https://docs.opencv.org/3.4.18/)
-- This is an open source module for Computer Vision.
-- It has many functions for image processing.
-
-#### :o:Practice[cv2]
-- Save the following sample code as a python file, and execute it. (`C:\oit\home\ipbl\sample_cv2.py`)
-- `sample_cv2.py`
-    ```python
-    import cv2
-    img = cv2.imread('./img/standard/Mandrill.bmp') # read image file
-    if img is None: # maybe Path is wrong
-        print('ERROR: image file is not opened.')
-        exit(1)
-    bimg = cv2.GaussianBlur(img, (51,51), 5) # gaussian filter (size=(51,51),sigma=5)
-    cv2.imshow('img',img)
-    cv2.imshow('blur img',bimg)
-    cv2.waitKey(0) # pause until press any key
-    cv2.destroyAllWindows # close all cv2's windows
-    ```
-- It is O.K., if the following windows pop up.<br>
-  <image src="../image/Mandrill_blur.png" height=50% width=50%>
-- The windows close when you press any key.
-
-### :red_square: Script/Function in Python3 and image IO
-- Making a Python script a function improves reusability.
-  - Functions can be called by other python programs.
-
-#### Python Script `sample_imgIO.py`
-```python
-import cv2
-
-# read image file
-img = cv2.imread('./img/standard/Mandrill.bmp')
-if img is None:
-    print('ERROR: image file is not opened.')
-    exit(1)
-
-# write image file
-cv2.imwrite('./img/res_scrpt.png', img)
-
-# show image file
-cv2.imshow('window name', img)
-cv2.waitKey(0)  # pause until any key pressed
-cv2.destroyAllWindows()  # close all windows
-```
-
-#### Python Function `sample_imgIO_func.py`
-```python
-import cv2
-a = 1 # global variable
-
-def imageIO(img_name_in, img_name_out):
-    # read image file
-    img = cv2.imread(img_name_in)
-    if img is None:
-        print('ERROR: image file is not opened.')
-        exit(1)
-
-    # write image file
-    cv2.imwrite(img_name_out, img)
-    return img
-
-def main():
-    print(a, b) # print global variables
-    in_name = './img/standard/Mandrill.bmp' # local variable
-    out_name = './img/res_func1.png' # local variable
-    img = imageIO(in_name, out_name)
-    # show image file
-    cv2.imshow('window name', img)
-    cv2.waitKey(0)  # pause until any key pressed
-    cv2.destroyAllWindows()  # close all windows
-
-# The following equation holds when this program file is only executed.
-if __name__ == '__main__':
-    b = 0 # global variable
-    main() # function name is free
-```
-
-#### :o:Practice[script/function 1]
-- Save the above two sample codes (`sample_imgIO.py`, `sample_imgIO_func.py`) as a python file. (`C:\oit\home\ipbl\sample_imgIO.py`) (`C:\oit\home\ipbl\sample_imgIO_func.py`)
-- Execute the two python codes, respectively.
-- It's O.K., if the two result images (`res_scrpt.png`, `res_func1.png`) in the directory `image` are the same.
-
-#### :o:Practice[script/function 2]
-- Let's use the function `imageIO` in `sample_imgIO_func.py` on Other python programs!
-- After `Practice[script/function 1]`, Save the following sample code as a python file, and execute it. (`C:\oit\home\ipbl\sample_other.py`)
-- `sample_other.py`
-  ```python
-  import sample_imgIO_func as myImgIO
-
-  myImgIO.imageIO('./img/standard/Mandrill.bmp', './img/res_func2.png')
-  ```
-- It's O.K., if the all result images (`res_scrpt.png`, `res_func1.png`, `res_func2.png`) in the directory `image` are the same.
-
-### :red_square: Python Code for Resizing images
-- The process with large size images is very heavy. If image size is huge, you should resize it to small.
-- There are various methods for resizing.
-    - Resizing with specified size
-        ```python
-        # the size of img_resize becomes (new_width, new_height).
-        img_resize = cv2.resize(img, (new_width, new_height))
-        ```
-    - Resizing with scalling
-        ```python
-        # downscalling -> 1/2
-        img_resize = cv2.resize(img, None, fx=1/2, fy=1/2)
-        ```
-    - Resizing the long side of images to a specified length while keeping the aspect ratio
-        - This program can resize Images of various sizes to approximately the same data size while maintaining the aspect ratio.
-        ```python
-        def resizeImg(img, length):
-            h, w = img.shape[:2]
-
-            if max(h, w) < length: # do not need resizing
-                return img
-
-            if h < w:
-                newSize = (int(h*length/w), length)
-            else:
-                newSize = (length, int(w*length/h))
-
-            print('resize to', newSize)
-
-            return cv2.resize(img, (newSize[1], newSize[0])) # (w, h)
-        ```
-
-#### :o:Exercise[resizing]
-- Please edit `resize.py` and type the following template. It's O.K. copy and paste.
-    ```python
-    import cv2
-
-    def resizeImg(img, length):
-        """
-        This function resizes the long side of images to the specified length while keeping the aspect ratio.
-
-        Args:
-            img(numpy.ndarray): input image
-            length(int): length of long side after resizing
-
-        Returns:
-            numpy.ndarray: resized image
-        """
-        h, w = img.shape[:2]
-        if max(h, w) < length:
-            return img
-        if h < w:
-            newSize = (int(h*length/w), length)
-        else:
-            newSize = (length, int(w*length/h))
-        print('resize to', newSize)
-        return cv2.resize(img, (newSize[1], newSize[0])) # (w, h)
+    def send_command(command: str):
+        try:
+            print(f"[TX]: {command}")
+            sock.sendto(command.encode('utf-8'), CONTROL_ADDRESS)
+            
+            sock.settimeout(3.0)
+            data, _ = sock.recvfrom(1518)
+            response = data.decode('utf-8').strip()
+            print(f"[RX]: {response}")
+            return response
+            
+        except socket.timeout:
+            print("\n[!!! COM LOSS DETECTED !!!] Aborting program.")
+            sys.exit(1)
 
     def main():
-        in_name = './img/standard/Mandrill.bmp'
-        img = cv2.imread(in_name)
-        if img is None:
-            print('ERROR: image file is not opened.')
-            exit(1)
+        send_command("command")
+        
+        battery = send_command("battery?")
+        try:
+            if int(battery) <= 20:
+                print("[ERROR] Battery too low. Aborting takeoff.")
+                return
+        except ValueError:
+            print("[WARNING] Could not parse battery level.")
 
-        img150x100 = cv2.resize(img, (150, 100))
-        img_half = cv2.resize(img, None, fx=2/3, fy=2/3)
-        img150 = resizeImg(img.copy(), 150)
+        try:
+            print("\n--- Starting Flight Sequence ---")
+            
+            # --- WRITE YOUR FLIGHT COMMANDS HERE ---
+            send_command("takeoff")
+            time.sleep(5)
+            
+            send_command("up 50")
+            time.sleep(4)
+            
+            send_command("forward 60")
+            time.sleep(4)
+            
+            send_command("cw 90")
+            time.sleep(4)
+            # --------------------------------------
+            
+        except KeyboardInterrupt:
+            print("\n[USER INTERRUPT] Program stopped by user.")
+        except Exception as e:
+            print(f"\n[UNEXPECTED ERROR] {e}")
+            
+        finally:
+            print("\n[SAFETY] Sending LAND command.")
+            try:
+                send_command("land") 
+            except Exception:
+                print("Failed to send land command. Recover manually.")
+                
+            print("Program terminated safely.")
 
-        cv2.imshow('img', img)
-        cv2.imshow('img150x100', img150x100)
-        cv2.imshow('img_half', img_half)
-        cv2.imshow('img150', img150)
-        cv2.waitKey(0)
-        cv2.destroyAllWindows()
-
-    if __name__ == '__main__':
+    if __name__ == "__main__":
         main()
     ```
-- Please run `resize.py`.
-- It's O.K., if the following figures pops up.<br>
-    <image src="../image/Mandrill_resizing.png" height=50% width=50%>
+
+> [!NOTE]
+> ### Explanation
+> - **`sock.settimeout(3.0)`**: If the aircraft does not respond within 3 seconds, a `socket.timeout` exception is raised to handle communication loss immediately.
+> - **`finally`**: Ensures that the `land` command is executed unconditionally at the end of the script, preventing the drone from getting stuck mid-air.
+
+---
+
+### :red_square: Flight Motion Rules & Limits
+- Basic moving commands and their parameters.
+- **Distance / Altitude**: Specified in **`cm` (Centimeters)**. Valid range is **`20` to `500`**.
+- **Rotation Angle**: Specified in **`Degrees` (°)**. Valid range is **`1` to `360`**.
+
+| Command | Action | Unit / Range |
+| :--- | :--- | :--- |
+| `takeoff` | Automatic Takeoff | None (Climbs to ~1m and hovers) |
+| `land` | Automatic Landing | None (Descends and stops motors) |
+| `up X` | Ascend | cm (20 to 500) |
+| `down X` | Descend | cm (20 to 500) |
+| `forward X` | Move Forward | cm (20 to 500) |
+| `back X` | Move Backward | cm (20 to 500) |
+| `left X` | Move Left | cm (20 to 500) *Maintains heading* |
+| `right X` | Move Right | cm (20 to 500) *Maintains heading* |
+| `cw X` | Clockwise Turn | Degrees (1 to 360) |
+| `ccw X` | Counter-Clockwise | Degrees (1 to 360) |
+
+---
+
+## :green_square: Real-Time Image Processing
+### :red_square: Frame Acquisition via `my_av2`
+- Capture a single real-time frame using the custom low-latency video library `my_av2.py`.
+
+#### :o:Practice[video_capture]
+- Save the following sample code as a python file, and execute it. (`C:\oit\home\ipbl\sample_hula_video.py`)
+- `sample_hula_video.py`
+    ```python
+    import cv2
+    from mylibs.my_av2 import VideoCapture # use custom library for iPBL26
+
+    def get_camera_frame():
+        cap = VideoCapture() # open camera stream from drone
+        if not cap.is_opened():
+            print("Failed to open camera pipeline")
+            return None
+
+        ret, frame = cap.read()
+        cap.release()
+        
+        if ret:
+            return frame
+        return None
+    ```
+
+> [!NOTE]
+> ### Explanation
+> - **`from mylibs.my_av2 import VideoCapture`**: Imports the custom video capture class designed to decode drone camera streams with minimal delay.
+
+---
+
+### :red_square: HSV Color Detection
+- Isolate target colors by converting the frame into the HSV color space.
+
+#### :o:Practice[hsv_filter]
+- Save the following sample code as a python file, and execute it. (`C:\oit\home\ipbl\sample_hula_hsv.py`)
+- `sample_hula_hsv.py`
+    ```python
+    import cv2
+    import numpy as np
+
+    def detect_hsv_color(frame):
+        hsv_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
+        
+        lower_green = np.array([35, 100, 100])
+        upper_green = np.array([75, 255, 255])
+        
+        mask = cv2.inRange(hsv_frame, lower_green, upper_green)
+        result_frame = cv2.bitwise_and(frame, frame, mask=mask)
+        
+        return mask, result_frame
+    ```
+
+> [!NOTE]
+> ### Explanation
+> - **`cv2.cvtColor`**: Converts the default BGR format to HSV (Hue, Saturation, Value), which is more stable for color detection under varying lights.
+> - **`cv2.inRange`**: Creates a binary mask where the pixels matching the green range turn white, and all other pixels turn black.
+
+---
+
+### :red_square: AR Marker Recognition
+- Detect ArUco markers to retrieve unique IDs and coordinate data for alignment.
+
+#### :o:Practice[aruco_detection]
+- Save the following sample code as a python file, and execute it. (`C:\oit\home\ipbl\sample_hula_aruco.py`)
+- `sample_hula_aruco.py`
+    ```python
+    import cv2
+
+    def detect_ar_markers(frame):
+        aruco_dict = cv2.aruco.getPredefinedDictionary(cv2.aruco.DICT_4X4_50)
+        aruco_params = cv2.aruco.DetectorParameters()
+        detector = cv2.aruco.ArucoDetector(aruco_dict, aruco_params)
+        
+        corners, ids, rejected = detector.detectMarkers(frame)
+        
+        if ids is not None:
+            cv2.aruco.drawDetectedMarkers(frame, corners, ids)
+            for i in range(len(ids)):
+                print(f"Detected AR Marker ID: {ids[i][0]}")
+                
+        return frame, ids
+    ```
+
+> [!NOTE]
+> ### Explanation
+> - **`DICT_4X4_50`**: Specifies the internal ArUco dictionary standard (4x4 matrix grid up to 50 unique IDs).
+> - **`detectMarkers`**: Returns the corner coordinates and the marker IDs found within the current image frame.
+
+---
+
+### :red_square: Advanced Failsafes & Emergency Methods
+- Modular functions to prevent crashes and safely handle flight anomalies based on battery levels.
+
+#### :o:Practice[emergency_routines]
+- Save the following sample code as a python file, and execute it. (`C:\oit\home\ipbl\sample_hula_safety.py`)
+- `sample_hula_safety.py`
+    ```python
+    def check_battery_safety(current_battery: int):
+        LOW_BATTERY_THRES = 20      
+        CRITICAL_BATTERY_THRES = 10 
+        
+        if current_battery <= CRITICAL_BATTERY_THRES:
+            print("[CRITICAL] Battery critical. Forcing immediate landing.")
+            send_command("land")
+            return False
+        elif current_battery <= LOW_BATTERY_THRES:
+            print("[WARNING] Battery low. Terminating mission and landing safely.")
+            send_command("land")
+            return False
+        return True
+
+    def emergency_stop():
+        print("[!!! EMERGENCY !!!] Forcing immediate motor shutdown.")
+        send_command("emergency")
+    ```
+
+> [!NOTE]
+> ### Explanation
+> - **`emergency` command**: Instantly kills power to all rotors. *Note: The drone will drop immediately. Use only as a last resort to avoid human injury.*
 
 ---
 
