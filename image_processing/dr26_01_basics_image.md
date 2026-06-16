@@ -8,8 +8,8 @@
 - This page explains basics of digital images and image processing with Python3.
 
 ## prerequisite
-- "[Image Processing Environment for iPBL](https://github.com/ipbl-oit-siit/portal/blob/main/setup/python%2Bvscode.md)" has already been installed.
-- The python programs (.py) have to be put under the directory `C:\oit\py25en\source`. And the all image files are saved/downloaded in the directory `img` and read from there.
+- "[Python Environment for iPBL26](https://github.com/ipbl-oit-siit/portal/blob/main/setup/python%2Bvscode.md)" has already been installed.
+- The python programs (.py) have to be put under the directory `C:\oit\py26\ipbl`. And the all image files are saved/downloaded in the directory `img` and read from there.
 
 ## :green_square: Basics of digital images
 ### :red_square: Color (Additive color)
@@ -35,12 +35,12 @@
 - The python programs (.py) have to be put under the directory `source`. And the all image files are saved/downloaded in the directory `img` and read from there.
 - Directory stucture
     ```text
-    +[source]         <== work directory ("C:\oit\py25en\source")
+    +[ibpl]         <== work directory ("C:\oit\ipbl")
     |-+[img]            <== this directory already exists.
     | |-+[standard]
     | | |--Aerial.bmp
     | | |--...
-    | | |--Mandrill.png   <== this image already exists.("C:\oit\py25en\source\img\standard\Mandrill.bmp")
+    | | |--Mandrill.png   <== this image already exists.("C:\oit\ipbl\img\standard\Mandrill.bmp")
     | | |--...
     | | |
     | | |-+[mono]
@@ -48,27 +48,28 @@
     | |   |--...
     | |
     | |--image files(.jpg, png, bmp, etc)   <== save new image files at this place.
-    | |--xxx.jpg         <== this image does not exist now.("C:\oit\py25en\source\img\xxx.jpg")
+    | |--xxx.jpg         <== this image does not exist now.("C:\oit\ipbl\img\xxx.jpg")
     | |--xxx.png
     | |--xxx.bmp
     | |--...
     |
     |-+[learned_models]
-    | |--lbfmodel.yaml  <== this program already exists.("C:\oit\py25en\source\learned_models\lbfmodel.yaml")
+    |
+    |-+[mylibs]
+    | |--my_av2.py
+    | |--detection_timer.py
     | |--...
-    | |
-    | |-+[haarcascades]
-    | | |--haarcascade_eye.xml
-    | | |--...
     |
     |--hello_opencv.py
-    |--hello_python.py  <== this program already exists.("C:\oit\py25en\source\hello_python.py")
-    |
-    |--python files(.py)  <== save new python programs at here.
-    |--MediapipeFaceDetection.py   <== this image does not exist now.("C:\oit\py25en\source\MediapipeFaceDetection.py")
-    |--MediapipeFaceLandmark.py
-    |--...
-    |--myhand.py
+    |--hello_python.py
+    |--sample1.py
+    |--sample2.py
+    |--sample3.py
+    |--sample4.py
+    |--sample5.py
+    |--sample6.py
+    |--sample7.py
+    |--sample8.py
     |--...
     ```
 
@@ -80,14 +81,14 @@
     <image src="../image/pys.png"><br>
 
 #### prerequisite
-- Open the VSCode by the running the `py25en_start` on the Desktop. Confirm that the current directory shown in the terminal window is `py25en`.
-- The python program (.py) has to be made in `source` folder. And all image files are saved (downloaded) in `img` folder and read from there.
+- Open the VSCode by the running the `py26_start` on the Desktop. Confirm that the current directory shown in the terminal window is `py26`.
+- The python program (.py) has to be made in `C:\oit\ipbl` folder. And all image files are saved (downloaded) in `img` folder and read from there.
 - You can run a python program with the input of the following command in the terminal.
     ```sh
-    C:\\...\py25en\source> python XXX.py
+    C:\oit\ipbl> python XXX.py
     ```
 #### :o:Practice[basic]
-- Save the following sample code as a python file and execute it. (`C:/oit/py25en/source/sample_basic.py`)
+- Save the following sample code as a python file and execute it. (`C:\oit\ipbl\sample_basic.py`)
     <image src="../image/file_sample_basic.jpg" width=50%, height=50%><!--本来，差し替えが必要-->
 - `sample_basic.py`
     ```python
@@ -105,7 +106,7 @@
     ```
 - It is O.K., if it is executed as follows.
   ```sh
-  C:\\...\py25en\source> python sample_basic.py
+  C:\oit\ipbl> python sample_basic.py
   0:0
   1:1
   2:3
@@ -127,7 +128,7 @@
     - useful linear algebra, Fourier transform, and random number capabilities
 
 #### :o:Practice[np]
-- Save the following sample code as a python file and execute it. (`C:/oit/py25en/source/sample_numpy.py`)
+- Save the following sample code as a python file and execute it. (`C:\oit\ipbl\sample_numpy.py`)
 - `sample_numpy.py`
     ```python
     import numpy as np
@@ -139,7 +140,7 @@
     ```
 - It is O.K., if it is executed as follows.
     ```sh
-    C:\\...\py25en\source> python sample_numpy.py
+    C:\oit\ipbl> python sample_numpy.py
     [[[0. 0.]
         [0. 1.]
         [0. 0.]]
@@ -160,12 +161,12 @@
     ```
 
 #### :blue_square: `cv2` (opencv-python)
-- more information: [OpenCV4.11.0 docs](https://docs.opencv.org/4.11.0/)
+- more information: [OpenCV3.4.18 docs](https://docs.opencv.org/3.4.18/)
 - This is an open source module for Computer Vision.
 - It has many functions for image processing.
 
 #### :o:Practice[cv2]
-- Save the following sample code as a python file, and execute it. (`C:/oit/py25en/source/sample_cv2.py`)
+- Save the following sample code as a python file, and execute it. (`C:\oit\ipbl\sample_cv2.py`)
 - `sample_cv2.py`
     ```python
     import cv2
@@ -239,13 +240,13 @@ cv2.destroyAllWindows()  # close all windows
     ```
 
 #### :o:Practice[script/function 1]
-- Save the above two sample codes (`sample_imgIO.py`, `sample_imgIO_func.py`) as a python file. (`C:/oit/py25en/source/sample_imgIO.py`) (`C:/oit/py25en/source/sample_imgIO_func.py`)
+- Save the above two sample codes (`sample_imgIO.py`, `sample_imgIO_func.py`) as a python file. (`C:\oit\ipbl\sample_imgIO.py`) (`C:\oit\ipbl\sample_imgIO_func.py`)
 - Execute the two python codes, respectively.
 - It's O.K., if the two result images (`res_scrpt.png`, `res_func1.png`) in the directory `image` are the same.
 
 #### :o:Practice[script/function 2]
 - Let's use the function `imageIO` in `sample_imgIO_func.py` on Other python programs!
-- After `Practice[script/function 1]`, Save the following sample code as a python file, and execute it. (`C:/oit/py25en/source/sample_other.py`)
+- After `Practice[script/function 1]`, Save the following sample code as a python file, and execute it. (`C:\oit\ipbl\sample_other.py`)
 - `sample_other.py`
   ```python
   import sample_imgIO_func as myImgIO
