@@ -93,7 +93,7 @@ By analyzing pixel values in the HSV color space, we can define a specific range
 ##### 2. Concept of Color Extraction
 To extract a specific color, we filter the HSV image by defining a lower and upper boundary for each channel. Pixels that fall within this range form a **Binary Mask** (White = Target color, Black = Others). By combining this mask with the original image using a bitwise AND operation, we can isolate the target object.
 
-> 💡 **How to set `lower_pink` and `upper_pink`:**
+> :::note warn **How to set `lower_pink` and `upper_pink`:**
 > Look at the multiple $(H, S, V)$ values you gathered by clicking around the box:
 > - **`lower_pink`**: Set values slightly lower than the *minimum* H, S, and V you observed.
 > - **`upper_pink`**: Set values slightly higher than the *maximum* H, S, and V you observed.
