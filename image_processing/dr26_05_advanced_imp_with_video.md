@@ -44,8 +44,10 @@ import numpy as np
 from my_libs.my_av2 import VideoCapture
 from my_libs.my_timer import DetectionTimer 
 
+device = 0 # camera device number
+
 def main():
-    cap = VideoCapture(0)
+    cap = VideoCapture(device)
     
     # Initialize the timer to require 3 seconds (3000ms) of stable detection
     mission_timer = DetectionTimer(target_ms=3000.0)
@@ -137,8 +139,10 @@ import numpy as np
 from my_libs.my_av2 import VideoCapture
 from my_libs.my_timer import DetectionTimer 
 
+device = 0 # camera device number
+
 def main():
-    cap = VideoCapture(0)
+    cap = VideoCapture(device)
     
     # Initialize the timer to require 3 seconds (3000ms) of stable detection
     mission_timer = DetectionTimer(target_ms=3000.0)
