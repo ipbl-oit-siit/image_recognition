@@ -1,4 +1,3 @@
-```markdown
 # Advanced Image Processing: AR Marker Detection and Overlay
 
 [back to the top page](../README.md)
@@ -186,7 +185,5 @@ if __name__ == '__main__':
 ---
 
 [back to the top page](https://www.google.com/search?q=../README.md)
-
-```
 
 ```
