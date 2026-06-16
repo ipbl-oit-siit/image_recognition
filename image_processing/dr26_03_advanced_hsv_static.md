@@ -42,7 +42,7 @@ hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
 
 #### :o:Practice[HSV color space]
 
-* Save the following sample code as a python file, and execute it. (`C:/oit/py25en/source/sample_hsv.py`)
+* Save the following sample code as a python file, and execute it. (`C:/oit/home/ipbl/sample_hsv.py`)
 * `sample_hsv.py`
 ```python
 import cv2
