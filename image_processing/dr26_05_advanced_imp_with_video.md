@@ -112,5 +112,96 @@ if __name__ == '__main__':
 * It is O.K., if you hold Card ID: 2 close to your camera, and a bright green "TARGET VERIFIED" alert locks onto the window screen after exactly 3 seconds of stable tracking.
 
 ---
+### :red_square: Application: Tracking a Pink Box with the Same Logic
+
+Next, let's look at how the exact same time-verification logic can be applied to **HSV Color Extraction**. 
+
+Whether you are detecting a 2D ArUco marker or a physical colored object like a **Pink Box**, you can treat them identically by calculating their **diagonal size** in pixels. Once converted into a 1D diagonal size, Step 2 and Step 3 remain completely unchanged.
+
+#### Geometry Difference: Marker vs. Color Contour
+* **ArUco Marker**: Provides 4 explicit corner points. Diagonal is calculated as the distance between Top-Left `[0]` and Bottom-Right `[2]`.
+* **Color Bounding Box**: Provides a rectangle with Width (`w`) and Height (`h`). Diagonal is calculated using the Pythagorean theorem: $\sqrt{w^2 + h^2}$.
+
+---
+
+### :o:Exercise 2 [Time-Based Color Verification]
+* Let's complete another program that triggers an event when a **Pink Box** is stably detected for **3 seconds (3000ms)** at close range.
+
+##### 1. Complete the Color Trigger Program (`ipB_color_trigger.py`)
+* Open the distributed `ipB_color_trigger.py` file.
+* **Complete the `TODO` sections** to calculate the diagonal length of the bounding box using `np.sqrt()`, and update the same timer structure.
+
+```python
+import cv2
+import numpy as np
+from my_libs.my_av2 import VideoCapture
+from my_libs.my_timer import DetectionTimer 
+
+def main():
+    cap = VideoCapture(0)
+    
+    # Initialize the timer to require 3 seconds (3000ms) of stable detection
+    mission_timer = DetectionTimer(target_ms=3000.0)
+    
+    # Define HSV thresholds for Pink Box (Adjust based on your classroom lighting)
+    LOWER_PINK = np.array([140,  50,  50])
+    UPPER_PINK = np.array([175, 255, 255])
+
+    print("Looking for the Pink Box...")
+
+    while cap.isOpened():
+        ret, frame = cap.read()
+        if not ret: break
+
+        current_msec = cap.get(cv2.CAP_PROP_POS_MSEC)
+        
+        # --- [Step 1: Image Processing (HSV Color Extraction)] ---
+        hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
+        mask = cv2.inRange(hsv, LOWER_PINK, UPPER_PINK)
+        contours, _ = cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+        
+        is_target_valid = False
+        
+        if len(contours) > 0:
+            # Get the largest pink contour and its bounding box
+            largest_contour = max(contours, key=cv2.contourArea)
+            x, y, w, h = cv2.boundingRect(largest_contour)
+            
+            # TODO: Calculate diagonal distance of the bounding box using w and h
+            size_px = np.sqrt(_________________ + _________________)
+            
+            # TODO: Condition is met if the Pink Box is close enough (size > 150 pixels)
+            if size_px > 150:
+                is_target_valid = True
+            
+            # Visual feedback: Draw a bounding box over the detected pink object
+            cv2.rectangle(frame, (x, y), (x + w, y + h), (255, 0, 255), 2)
+
+        # --- [Step 2: Time Verification] ---
+        # TODO: Pass the detection status and current timestamp into the timer
+        is_cleared = mission_timer.update(________________, ________________)
+
+        # --- [Step 3: Visual Feedback and Drone Trigger] ---
+        if is_cleared:
+            cv2.putText(frame, "TARGET VERIFIED! TRIGGERING MISSION...", (30, 200), 
+                        cv2.FONT_HERSHEY_SIMPLEX, 1.0, (0, 255, 0), 3)
+        elif is_target_valid:
+            cv2.putText(frame, "Target Found: Counting down...", (30, 50), 
+                        cv2.FONT_HERSHEY_SIMPLEX, 1.0, (0, 255, 255), 2)
+
+        cv2.imshow("Time-Based Trigger System (Color)", frame)
+        if cv2.waitKey(1) & 0xFF == ord('q'): break
+
+    cap.release()
+    cv2.destroyAllWindows()
+
+if __name__ == '__main__':
+    main()
+
+```
+
+* Show the Pink Box to your camera, and verify that the green "TARGET VERIFIED" text triggers stably after 3 seconds, just like the ARuCo marker task.
+
+---
 
 [back to the top page](../README.md)
