@@ -368,7 +368,7 @@ Before performing any actual flight sequence, always execute these non-takeoff t
 ---
 
 ### :red_square: AR Marker Recognition
-- Detect ArUco markers to retrieve unique IDs and coordinate data for alignment.
+- Detect specialized ArUco markers printed for the Hula-JP environment to retrieve localization values.
 
 #### :o:Practice[aruco_detection]
 - Save the following sample code as a python file, and execute it. (`C:\oit\home\ipbl\sample_hula_aruco.py`)
@@ -377,7 +377,11 @@ Before performing any actual flight sequence, always execute these non-takeoff t
     import cv2
 
     def detect_ar_markers(frame):
-        aruco_dict = cv2.aruco.getPredefinedDictionary(cv2.aruco.DICT_4X4_50)
+        # CHANGE HERE: Use the specific ArUco dictionary specified by your Hula-JP task sheet
+        # Example: cv2.aruco.DICT_6X6_250, cv2.aruco.DICT_APRILTAG_36h11, etc.
+        HULA_AR_DICTIONARY = cv2.aruco.DICT_4X4_50 
+        
+        aruco_dict = cv2.aruco.getPredefinedDictionary(HULA_AR_DICTIONARY)
         aruco_params = cv2.aruco.DetectorParameters()
         detector = cv2.aruco.ArucoDetector(aruco_dict, aruco_params)
         
@@ -393,7 +397,7 @@ Before performing any actual flight sequence, always execute these non-takeoff t
 
 > [!NOTE]
 > ### Explanation
-> - **`DICT_4X4_50`**: Specifies the internal ArUco dictionary standard (4x4 matrix grid up to 50 unique IDs).
+> - **`HULA_AR_DICTIONARY`**: Defines the layout matrix configuration. **Make sure to change `DICT_4X4_50` to the specific dictionary format designated in your course handbook**, otherwise the tracking grid will mismatch and ignore physical markers.
 > - **`detectMarkers`**: Returns the corner coordinates and the marker IDs found within the current image frame.
 
 ---
