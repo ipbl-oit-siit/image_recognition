@@ -24,40 +24,55 @@ Before performing any actual flight sequence, always execute these non-takeoff t
 - Save the following sample code as a python file, and execute it. (`C:\oit\home\ipbl\sample_hula_ping.py`)
 - `sample_hula_ping.py`
     ```python
-    import socket
+    import pyhula
     import sys
-
-    HULA_IP = "192.168.10.1"
-    HULA_PORT = 8889
-    CONTROL_ADDRESS = (HULA_IP, HULA_PORT)
-
-    # Initialize UDP Socket
-    sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-    sock.bind(("", 9000))
-
+    import time
+    
+    # pyhulaのAPIインスタンスをグローバルで初期化
+    try:
+        api = pyhula.UserApi()
+    except Exception as e:
+        print(f"[ERROR] pyhulaの初期化に失敗しました: {e}")
+        sys.exit(1)
+    
     def send_test_command(command: str):
+        """
+        元のコードの構造を維持するための関数。
+        内部では生ソケットではなく、pyhulaの機能を使ってドローンに命令を送ります。
+        """
         try:
             print(f"[TX]: {command}")
-            sock.sendto(command.encode('utf-8'), CONTROL_ADDRESS)
             
-            sock.settimeout(3.0)
-            data, _ = sock.recvfrom(1518)
-            response = data.decode('utf-8').strip()
+            if command == "command":
+                # 192.168.100.101 に接続を確立する（これがSDKモードに入る代わりになります）
+                api.connect("192.168.100.101")
+                time.sleep(1.0)
+                response = "ok"
+                
+            elif command == "battery?":
+                # バッテリー残量を取得
+                res_battery = api.get_battery()
+                response = str(res_battery)
+                
+            else:
+                response = "unknown command"
+                
             print(f"[RX]: {response}")
             return response
-        except socket.timeout:
-            print("[ERROR] Connection timeout. Check Wi-Fi connection to the drone.")
+    
+        except Exception as e:
+            print(f"[ERROR] 通信エラーが発生しました: {e}")
             sys.exit(1)
-
+    
     def main():
         print("--- Initiating Drone Communication Test ---")
-        # 1. Enter SDK mode
+        # 1. Enter SDK mode (内部でconnectを実行)
         send_test_command("command")
         
-        # 2. Query Battery Capacity
+        # 2. Query Battery Capacity (内部でget_batteryを実行)
         battery = send_test_command("battery?")
         print(f"\n[STATUS] Connection successful. Battery Level: {battery}%")
-
+    
     if __name__ == "__main__":
         main()
     ```
