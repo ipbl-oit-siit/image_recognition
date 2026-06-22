@@ -11,7 +11,7 @@
 ## Prerequisite
 - "[Python Environment for iPBL26](https://github.com/ipbl-oit-siit/portal/blob/main/setup/python%2Bvscode.md)" has already been installed.
 - The python programs (.py) have to be put under the directory `C:\oit\py26\ipbl`. 
-- The custom libraries `my_av2.py`, `detection_timer.py`, and `safe_drone_watcher.py` must be located under the directory `mylibs`.
+- The custom libraries `my_av2.py`, `detection_timer.py`, and `safe_drone_watcher.py` must be located under the directory `my_libs`.
 
 ---
 
@@ -67,7 +67,7 @@ Before performing any actual flight sequence, always execute these non-takeoff t
     import sys
     import time
     import pyhula
-    from mylibs.safe_drone_watcher import SafeDroneWatcher
+    from my_libs.safe_drone_watcher import SafeDroneWatcher
 
     DRONE_IP = "192.168.100.116"
     
@@ -110,8 +110,8 @@ Before performing any actual flight sequence, always execute these non-takeoff t
     import time
     import cv2
     import pyhula
-    from mylibs.safe_drone_watcher import SafeDroneWatcher
-    from mylibs.my_av2 import VideoCapture
+    from my_libs.safe_drone_watcher import SafeDroneWatcher
+    from my_libs.my_av2 import VideoCapture
 
     DRONE_IP = "192.168.100.116"
     
@@ -170,7 +170,7 @@ Before performing any actual flight sequence, always execute these non-takeoff t
     import sys
     import time
     import pyhula
-    from mylibs.safe_drone_watcher import SafeDroneWatcher
+    from my_libs.safe_drone_watcher import SafeDroneWatcher
 
     def main():
         # 1. Connect first
@@ -209,9 +209,9 @@ Before performing any actual flight sequence, always execute these non-takeoff t
     import time
     import cv2
     import pyhula
-    from mylibs.safe_drone_watcher import SafeDroneWatcher
-    from mylibs.my_av2 import VideoCapture
-    from mylibs.detection_timer import DetectionTimer
+    from my_libs.safe_drone_watcher import SafeDroneWatcher
+    from my_libs.my_av2 import VideoCapture
+    from my_libs.detection_timer import DetectionTimer
 
     def main():
         # 1. Connect first
