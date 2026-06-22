@@ -207,7 +207,8 @@ Before performing any actual flight sequence, always execute these non-takeoff t
 
 ## :green_square: Real-Time Image Processing & Camera Control
 ### :red_square: Integration Loop: Continuous Processing & Chattering Prevention
-- Inside this loop, we inject `DetectionTimer` to handle **Debouncing (Time Stabilization)** and absorb physical hardware delay by controlling transmission intervals without stopping the video frame pipeline.
+- In the previous module (`imp_time_trigger.py`), you learned how to use `DetectionTimer` to verify a target over continuous milliseconds using your webcam. 
+- Now, we apply this exact same **Time-Based Verification System** to actual drone control. In this practice, we inject `DetectionTimer` into a non-blocking flight loop to stabilize manual gimbal adjustments via keyboard inputs without disrupting the real-time video stream pipeline.
 
 #### :o:Practice[camera_angle_control]
 - Save the following sample code as a python file, and execute it. (`C:\oit\home\ipbl\hula_vision_control.py`)
@@ -221,17 +222,19 @@ Before performing any actual flight sequence, always execute these non-takeoff t
     from my_libs.my_av2 import VideoCapture
     from my_libs.detection_timer import DetectionTimer
 
+    DRONE_IP = "192.168.100.116"
+    
     def main():
         # 1. Connect first
         try:
             api = pyhula.UserApi()
-            print("Connecting to drone at 192.168.100.116...")
-            api.connect("192.168.100.116")
+            print("Connecting to drone at ", DRONE_IP, "...")
+            api.connect(DRONE_IP)
             time.sleep(3.0)
         except Exception as e:
             print(f"[ERROR] Failed to setup drone: {e}")
             sys.exit(1)
-
+    
         # 2. Activate watcher protection right after connection
         with SafeDroneWatcher(api):
             # 3. Enter real-time tracking and non-blocking loop structure
@@ -303,7 +306,10 @@ Before performing any actual flight sequence, always execute these non-takeoff t
 > [!NOTE]
 > ### Explanation
 > - **`cap.get(cv2.CAP_PROP_POS_MSEC)`**: Retrieves the high-accuracy frame timestamp (in milliseconds) calculated internally by the custom `VideoCapture` class.
-> - **`DetectionTimer.update(...)`**: Tracks transient frame-by-frame gesture detection flags over continuous milliseconds. It prevents control-packet flooding by waiting for a predefined duration (`target_ms`) before triggering drone commands, ensuring physical hardware has enough time to catch up.
+> - **`DetectionTimer.update(is_detected, current_msec)`**: 
+>   Just like the ARuCo card locking system you practiced earlier (`imp_time_trigger.py`), this method tracks how long a signal stays active to filter out unstable physical chattering.
+>   * **Target Lock (400ms)**: Instead of snapping the camera gimbal the exact millisecond a key is touched, it requires the input signal to be held for `target_ms=400.0` before sending commands. This prevents flooding the drone with excessive control packets.
+>   * **Debouncing Grace (200ms)**: Standard OS keyboard inputs naturally stutter (briefly drop to `False`) when held down. The built-in `grace_ms=200.0` safety buffer ensures that a fraction of a second of key signal drop won't instantly wipe out your accumulated timer progress.
 
 ---
 
