@@ -53,7 +53,7 @@ Before performing any actual flight sequence, always execute these non-takeoff t
       
     if __name__ == "__main__":
         main()
-    ```
+```
 
 ---
 
@@ -95,7 +95,7 @@ Before performing any actual flight sequence, always execute these non-takeoff t
 
     if __name__ == "__main__":
         main()
-    ```
+```
 
 ---
 
@@ -154,7 +154,7 @@ Before performing any actual flight sequence, always execute these non-takeoff t
 
     if __name__ == "__main__":
         main()
-    ```
+```
 
 ---
 
@@ -200,7 +200,7 @@ Before performing any actual flight sequence, always execute these non-takeoff t
                  
     if __name__ == "__main__":
         main()
-    ```
+```
 
 ---
 
@@ -300,7 +300,7 @@ Before performing any actual flight sequence, always execute these non-takeoff t
 
     if __name__ == "__main__":
         main()
-    ```
+```
 
 > [!NOTE]
 > ### Explanation: hover_and_failsafe_test
@@ -417,7 +417,7 @@ Before performing any actual flight sequence, always execute these non-takeoff t
 
     if __name__ == "__main__":
         main()
-    ```
+```
 
 > [!NOTE]
 > ### Explanation: camera_angle_control
