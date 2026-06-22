@@ -74,39 +74,40 @@ Before performing any actual flight sequence, always execute these non-takeoff t
 - Save the following sample code as a python file, and execute it. (`C:\oit\home\ipbl\sample_hula_motor_test.py`)
 - `sample_hula_motor_test.py`
     ```python
-    import pyhula
-    import time
     import sys
+    import time
+    import pyhula
+    from mylibs.safe_drone_watcher import SafeDroneWatcher
 
     DRONE_IP = "192.168.100.101"
 
-    try:
-        api = pyhula.UserApi()
-    except Exception as e:
-        print(f"[ERROR] Failed to initialize pyhula: {e}")
-        sys.exit(1)
-
-    def main():
+    def main(api):
+        print(f"Connecting to drone at {DRONE_IP}...")
         if not api.connect(DRONE_IP):
-            print("[!!! EMERGENCY !!!] Connection Failed. Aborting motor test.")
-            sys.exit(1)
+            print("[ERROR] Connection failed. Please check Wi-Fi network.")
+            return
+        time.sleep(1.0)
+
+        print("\n--- Starting Propeller Rotation Test (Arming) ---")
+        api.plane_fly_arm()  
+        print("Motors spinning at idle speed... checking hardware status.")
+        time.sleep(3)
         
-        try:
-            print("\n--- Starting Propeller Rotation Test (Arming) ---")
-            # Turn on motors at idle ground speed
-            api.plane_fly_arm()  
-            print("Motors spinning at idle speed... checking hardware status.")
-            time.sleep(3)
-            
-            # Shut down motors
-            api.plane_fly_disarm()
-            print("Motors stopped safely (Disarmed).")
-        except KeyboardInterrupt:
-            print("\n[USER INTERRUPT] Stopping motors immediately.")
-            api.plane_fly_disarm()
+        api.plane_fly_disarm()
+        print("Motors stopped safely (Disarmed).")
 
     if __name__ == "__main__":
-        main()
+        try:
+            hula_api = pyhula.UserApi()
+        except Exception as initialization_error:
+            print(f"[ERROR] Failed to initialize pyhula API: {initialization_error}")
+            sys.exit(1)
+
+        with SafeDroneWatcher(hula_api):
+            try:
+                main(hula_api)
+            except KeyboardInterrupt:
+                raise
     ```
 
 ---
@@ -118,28 +119,23 @@ Before performing any actual flight sequence, always execute these non-takeoff t
 - Save the following sample code as a python file, and execute it. (`C:\oit\home\ipbl\sample_hula_stream_test.py`)
 - `sample_hula_stream_test.py`
     ```python
+    import sys
+    import time
     import cv2
     import pyhula
-    import sys
     from mylibs.my_av2 import VideoCapture
+    from mylibs.safe_drone_watcher import SafeDroneWatcher
 
     DRONE_IP = "192.168.100.101"
 
-    def main():
-        try:
-            api = pyhula.UserApi()
-        except Exception as e:
-            print(f"[ERROR] Failed to initialize pyhula: {e}")
-            sys.exit(1)
-
+    def main(api):
+        print(f"Connecting to drone at {DRONE_IP}...")
         if not api.connect(DRONE_IP):
-            print("[ERROR] Cannot connect to drone control channel.")
+            print("[ERROR] Connection failed. Please check Wi-Fi network.")
             return
+        time.sleep(1.0)
 
-        # Pass the initialized api object directly to enable custom Hula SDK stream mode
         cap = VideoCapture(api)
-
-        # Explicitly verify if the UDP/RTP media stream opened successfully
         if not cap.isOpened():
             print("[ERROR] Cannot open drone video stream. Check Wi-Fi connection.")
             return
@@ -155,7 +151,6 @@ Before performing any actual flight sequence, always execute these non-takeoff t
                 continue
 
             cv2.imshow("Hula-JP Ground Camera Test", frame)
-
             if cv2.waitKey(1) & 0xFF == ord('q'):
                 print("Closing video stream...")
                 break
@@ -165,7 +160,17 @@ Before performing any actual flight sequence, always execute these non-takeoff t
         print("Resources released successfully.")
 
     if __name__ == "__main__":
-        main()
+        try:
+            hula_api = pyhula.UserApi()
+        except Exception as initialization_error:
+            print(f"[ERROR] Failed to initialize pyhula API: {initialization_error}")
+            sys.exit(1)
+
+        with SafeDroneWatcher(hula_api):
+            try:
+                main(hula_api)
+            except KeyboardInterrupt:
+                raise
     ```
 
 ---
@@ -179,6 +184,7 @@ Before performing any actual flight sequence, always execute these non-takeoff t
 - `sample_main_failsafe.py`
     ```python
     import sys
+    import time
     import pyhula
     from mylibs.safe_drone_watcher import SafeDroneWatcher
 
@@ -189,6 +195,7 @@ Before performing any actual flight sequence, always execute these non-takeoff t
         if not api.connect(DRONE_IP):
             print("[ERROR] Connection failed. Please check Wi-Fi network.")
             return
+        time.sleep(1.0)
 
         # -------------------------------------------------------------
         # WRITE YOUR FLIGHT COMMANDS HERE (e.g., api.single_fly_takeoff())
@@ -215,42 +222,34 @@ Before performing any actual flight sequence, always execute these non-takeoff t
 
 ## :green_square: Real-Time Image Processing & Camera Control
 ### :red_square: Integration Loop: Continuous Processing & Chattering Prevention
-- **Critical Requirement**: To maintain real-time low latency without frame backlog, the main loop must run **completely non-blocking** by constantly pulling frames via `cap.read()`.
 - Inside this loop, we inject `DetectionTimer` to handle **Debouncing (Time Stabilization)** and absorb physical hardware delay by controlling transmission intervals without stopping the video frame pipeline.
 
 #### :o:Practice[camera_angle_control]
 - Save the following sample code as a python file, and execute it. (`C:\oit\home\ipbl\sample_hula_vision_control.py`)
 - `sample_hula_vision_control.py`
     ```python
+    import sys
+    import time
     import cv2
     import pyhula
-    import sys
     from mylibs.my_av2 import VideoCapture
     from mylibs.detection_timer import DetectionTimer
+    from mylibs.safe_drone_watcher import SafeDroneWatcher
 
     DRONE_IP = "192.168.100.101"
 
-    def main():
-        try:
-            api = pyhula.UserApi()
-        except Exception as e:
-            print(f"[ERROR] Failed to initialize pyhula: {e}")
-            sys.exit(1)
-            
+    def main(api):
+        print(f"Connecting to drone at {DRONE_IP}...")
         if not api.connect(DRONE_IP):
-            print("[ERROR] Connection failed.")
+            print("[ERROR] Connection failed. Please check Wi-Fi network.")
             return
+        time.sleep(1.0)
 
-        # 1. Initialize stable timers for up/down gesture detections (e.g., maintain 400ms)
         up_timer = DetectionTimer(target_ms=400.0, grace_ms=200.0)
         down_timer = DetectionTimer(target_ms=400.0, grace_ms=200.0)
-        
-        camera_angle = 0  # Internal state tracking for the camera gimbal angle (-90 to 90)
+        camera_angle = 0  
 
-        # 2. Connect to the drone video stream via the custom PyAV engine
         cap = VideoCapture(api)
-        
-        # Guard clause to ensure stream is opened before starting the real-time loop
         if not cap.isOpened():
             print("[ERROR] Cannot connect to drone video stream.")
             return
@@ -258,79 +257,68 @@ Before performing any actual flight sequence, always execute these non-takeoff t
         print("Streaming active. Control gimbal using vision logic in non-blocking loop...")
         print("Press 'q' in the video window or press Ctrl+C in the terminal to stop.")
         
-        try:
-            while True:
-                # 3. Read the latest frame in a fast loop to completely flush UDP socket buffer
-                ret, frame = cap.read()
-                if not ret or frame is None:
-                    if cv2.waitKey(1) & 0xFF == ord('q'):
-                        print("Quit requested by user via OpenCV window.")
-                        break
-                    continue
-                
-                # Fetch exact high-accuracy timeline (msec) assigned by custom VideoCapture
-                current_msec = cap.get(cv2.CAP_PROP_POS_MSEC)
-                
-                # --- [Vision Processing Section Placeholder] ---
-                # Realistically, you would process MediaPipe landmarks here.
-                # Example flags:
-                is_up_detected = False
-                is_down_detected = False
-                
-                # Temporary key binding test to mimic hand tracking for demonstration:
-                key_press = cv2.waitKey(1) & 0xFF
-                if key_press == ord('u'):    # Hold 'u' key to simulate Up gesture
-                    is_up_detected = True
-                elif key_press == ord('d'):  # Hold 'd' key to simulate Down gesture
-                    is_down_detected = True
-                elif key_press == ord('q'):
+        while True:
+            ret, frame = cap.read()
+            if not ret or frame is None:
+                if cv2.waitKey(1) & 0xFF == ord('q'):
                     print("Quit requested by user via OpenCV window.")
                     break
-                # -------------------------------------------------
+                continue
+            
+            current_msec = cap.get(cv2.CAP_PROP_POS_MSEC)
+            
+            is_up_detected = False
+            is_down_detected = False
+            
+            key_press = cv2.waitKey(1) & 0xFF
+            if key_press == ord('u'):    
+                is_up_detected = True
+            elif key_press == ord('d'):  
+                is_down_detected = True
+            elif key_press == ord('q'):
+                print("Quit requested by user via OpenCV window.")
+                break
 
-                # 4. Feed detection states and chronological milestones into the timers
-                up_reached = up_timer.update(is_up_detected, current_msec)
-                down_reached = down_timer.update(is_down_detected, current_msec)
+            up_reached = up_timer.update(is_up_detected, current_msec)
+            down_reached = down_timer.update(is_down_detected, current_msec)
 
-                # 5. Process state machine triggers once timers confirm target hold duration
-                if up_reached:
-                    if camera_angle < 90:
-                        camera_angle += 10
-                        # Command the hardware to explicitly snap to the target ABSOLUTE value
-                        # API: Plane_cmd_camera_angle(type, data)
-                        api.Plane_cmd_camera_angle(0, camera_angle)
-                        print(f"[GIMBAL UP] Target Stable. Snapping to: {camera_angle} deg")
-                    
-                    # Force reset the latch state to prepare for the next targeted hold cycle
-                    up_timer.is_reached = False
-                    up_timer.start_time = None
+            if up_reached:
+                if camera_angle < 90:
+                    camera_angle += 10
+                    api.Plane_cmd_camera_angle(0, camera_angle)
+                    print(f"[GIMBAL UP] Target Stable. Snapping to: {camera_angle} deg")
+                up_timer.is_reached = False
+                up_timer.start_time = None
 
-                elif down_reached:
-                    if camera_angle > -90:
-                        camera_angle -= 10
-                        # Hula API expects positive magnitude for absolute type-1 downwards request
-                        api.Plane_cmd_camera_angle(1, abs(camera_angle))
-                        print(f"[GIMBAL DOWN] Target Stable. Snapping to: {camera_angle} deg")
-                    
-                    down_timer.is_reached = False
-                    down_timer.start_time = None
+            elif down_reached:
+                if camera_angle > -90:
+                    camera_angle -= 10
+                    api.Plane_cmd_camera_angle(1, abs(camera_angle))
+                    print(f"[GIMBAL DOWN] Target Stable. Snapping to: {camera_angle} deg")
+                down_timer.is_reached = False
+                down_timer.start_time = None
 
-                # Render basic HUD telemetry overlays onto the video frame
-                cv2.putText(frame, f"Angle: {camera_angle} | Time: {int(current_msec)}ms", 
-                            (20, 40), cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 255, 255), 2)
-                cv2.imshow("Real-Time Tracking & Control Window", frame)
+            cv2.putText(frame, f"Angle: {camera_angle} | Time: {int(current_msec)}ms", 
+                        (20, 40), cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 255, 255), 2)
+            cv2.imshow("Real-Time Tracking & Control Window", frame)
 
-        except KeyboardInterrupt:
-            print("\n[EMERGENCY] Program interrupted by user via terminal (Ctrl+C).")
+        cap.release()
+        cv2.destroyAllWindows()
+        print("Video resources cleaned up safely.")
 
-        finally:
-            print("[SAFETY] Cleaning up resources and stabilizing flight state...")
-            cap.release()
-            cv2.destroyAllWindows()
-            print("Video resources cleaned up safely.")
 
     if __name__ == "__main__":
-        main()
+        try:
+            hula_api = pyhula.UserApi()
+        except Exception as initialization_error:
+            print(f"[ERROR] Failed to initialize pyhula API: {initialization_error}")
+            sys.exit(1)
+
+        with SafeDroneWatcher(hula_api):
+            try:
+                main(hula_api)
+            except KeyboardInterrupt:
+                raise
     ```
 
 > [!NOTE]
