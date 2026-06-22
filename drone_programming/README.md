@@ -171,13 +171,15 @@ Before performing any actual flight sequence, always execute these non-takeoff t
     import time
     import pyhula
     from my_libs.safe_drone_watcher import SafeDroneWatcher
+
+    DRONE_IP = "192.168.100.116"
     
     def main():
         # 1. Connect first
         try:
             api = pyhula.UserApi()
-            print("Connecting to drone at 192.168.100.116...")
-            api.connect("192.168.100.116")
+            print("Connecting to drone at ", DRONE_IP, "...")
+            api.connect(DRONE_IP)
             time.sleep(3.0)
         except Exception as e:
             print(f"[ERROR] Failed to setup drone: {e}")
