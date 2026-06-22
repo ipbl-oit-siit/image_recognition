@@ -322,29 +322,99 @@ Before performing any actual flight sequence, always execute these non-takeoff t
 
 ---
 
-## :green_square: Emergency Management & Safety Routines
-### :red_square: Advanced Failsafes & Emergency Methods
-- Modular functions to prevent crashes and safely handle flight anomalies based on battery levels.
+## :green_square: Flight Control & Safety
+### :red_square: Non-Blocking Hover & Failsafe Interruption Test (5-Second Flight)
+- Execute a 5-second hover mission by using the `DetectionTimer` to track flight duration inside the main video stream loop. 
+- This practice ensures that your loops remain completely responsive during flight. It allows you to verify that an emergency touchdown is triggered instantly at any millisecond via either the **'q' key** in the video window or **`Ctrl+C`** in the terminal.
 
-#### :o:Practice[emergency_routines]
-- Save the following sample code as a python file, and execute it. (`C:\oit\home\ipbl\hula_safety.py`)
-- `hula_safety.py`
+#### :o:Practice[hover_and_failsafe_test]
+- Save the following sample code as a python file, and execute it. (`C:\oit\home\ipbl\hula_hover_test.py`)
+- `hula_hover_test.py`
     ```python
+    import sys
+    import time
+    import cv2
     import pyhula
+    from my_libs.safe_drone_watcher import SafeDroneWatcher
+    from my_libs.my_av2 import VideoCapture
+    from my_libs.detection_timer import DetectionTimer
 
-    def trigger_emergency_touchdown(api: pyhula.UserApi):
-        """
-        Forces the drone to stop any autonomous mission and land immediately.
-        Use this handler for fatal vision tracking loss or external flight anomalies.
-        """
-        print("[EMERGENCY] Failsafe triggered. Forcing immediate touchdown sequence.")
+    DRONE_IP = "192.168.100.116"
+
+    def main():
+        # 1. Connect first
         try:
-            api.single_fly_touchdown()
-            return True
+            api = pyhula.UserApi()
+            print(f"Connecting to drone at {DRONE_IP}...")
+            api.connect(DRONE_IP)
+            time.sleep(3.0)
         except Exception as e:
-            print(f"[CRITICAL] Touchdown command failed to dispatch: {e}")
-            return False
+            print(f"[ERROR] Failed to setup drone: {e}")
+            sys.exit(1)
+
+        # 2. Activate watcher protection right after connection
+        with SafeDroneWatcher(api):
+            cap = VideoCapture(api)
+            if not cap.isOpened():
+                print("[ERROR] Cannot connect to drone video stream.")
+                return
+
+            # Initialize the flight timer for a 5-second (5000ms) continuous hover duration
+            hover_timer = DetectionTimer(target_ms=5000.0)
+
+            print("\n--- Starting Takeoff Sequence ---")
+            api.single_fly_takeoff()
+            
+            print("Hovering active. Video stream loop is running...")
+            print(">>> TO INTERRUPT & TOUCHDOWN: Press 'q' in the window OR [Ctrl+C] in the terminal <<<")
+
+            while True:
+                ret, frame = cap.read()
+                if not ret or frame is None:
+                    if cv2.waitKey(1) & 0xFF == ord('q'):
+                        print("[INTERRUPT] Quit requested during stream loss.")
+                        break
+                    continue
+
+                current_msec = cap.get(cv2.CAP_PROP_POS_MSEC)
+                
+                # Update the timer by passing 'True' to state that the drone is actively hovering
+                is_hover_completed = hover_timer.update(True, current_msec)
+
+                # Check if the 5-second target duration has been reached
+                if is_hover_completed:
+                    print("\n[SUCCESS] 5-second hover time elapsed.")
+                    break
+
+                # Check for manual 'q' key interruption
+                if cv2.waitKey(1) & 0xFF == ord('q'):
+                    print("\n[INTERRUPT] 'q' key pressed. Breaking loop for landing.")
+                    break
+
+                # Visual Feedback: Display status on the video feed
+                cv2.putText(frame, f"HOVERING ACTIVE | Time: {int(current_msec)}ms", 
+                            (20, 40), cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 255, 0), 2)
+                cv2.imshow("Real-Time Flight Control Feed", frame)
+
+            # --- Landing Phase ---
+            print("Sending safe touchdown command...")
+            api.single_fly_touchdown()
+            
+            cap.release()
+            cv2.destroyAllWindows()
+            print("Resources released successfully.")
+
+    if __name__ == "__main__":
+        main()
     ```
+
+> [!NOTE]
+> ### Explanation
+> - **Reusing the `DetectionTimer` for Flight Duration**: 
+>   The `DetectionTimer` class is a versatile tool for time tracking. By passing `True` into `.update(True, current_msec)` every frame, you tell the timer that the drone is continuously maintaining its hovering state. Once this state accumulates up to `target_ms=5000.0`, the method returns `True` to signify mission completion.
+> - **Verification of Dual-Layer Interrupts**:
+>   1. **The 'q' Key**: Triggers a clean loop break. The script immediately proceeds to the regular landing command (`api.single_fly_touchdown()`).
+>   2. **`Ctrl + C`**: Simulates a sudden runtime script interruption. The `SafeDroneWatcher` context manager catches the exception and forces an immediate touchdown routine under the hood, ensuring the drone never gets stranded in the air.
 
 ---
 
