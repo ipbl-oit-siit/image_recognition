@@ -171,7 +171,7 @@ Before performing any actual flight sequence, always execute these non-takeoff t
     import time
     import pyhula
     from my_libs.safe_drone_watcher import SafeDroneWatcher
-
+    
     def main():
         # 1. Connect first
         try:
@@ -182,15 +182,21 @@ Before performing any actual flight sequence, always execute these non-takeoff t
         except Exception as e:
             print(f"[ERROR] Failed to setup drone: {e}")
             sys.exit(1)
-
+    
         # 2. Activate watcher protection right after connection
         with SafeDroneWatcher(api):
-            # 3. Place your main flight logic / loop structure here
-            # -------------------------------------------------------------
-            # WRITE YOUR FLIGHT COMMANDS HERE (e.g., api.single_fly_takeoff())
-            # -------------------------------------------------------------
-            print("Executing mission logic...")
-
+            # 3. Spin the propellers continuously on the ground to test emergency intervention
+            print("\n--- Safe Watchdog Test Loop Activated ---")
+            print("[STATUS] Arming motors... Propellers are now spinning at low idle speed.")
+            api.plane_fly_arm()
+            
+            print("\n>>> PRESS [Ctrl + C] IN THIS TERMINAL TO TEST EMERGENCY FAILSAFE! <<<")
+            print("The Watchdog system will catch the interrupt and automatically shut down the motors.")
+            
+            # Keep idling until the user triggers a terminal keyboard interrupt
+            while True:
+                time.sleep(1.0)
+                
     if __name__ == "__main__":
         main()
     ```
