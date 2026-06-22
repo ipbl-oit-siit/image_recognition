@@ -11,7 +11,7 @@
 ## Prerequisite
 - "[Python Environment for iPBL26](https://github.com/ipbl-oit-siit/portal/blob/main/setup/python%2Bvscode.md)" has already been installed.
 - The python programs (.py) have to be put under the directory `C:\oit\py26\ipbl`. 
-- The custom libraries `my_av2.py` and `detection_timer.py` must be located under the directory `mylibs`.
+- The custom libraries `my_av2.py`, `detection_timer.py`, and `safe_drone_watcher.py` must be located under the directory `mylibs`.
 
 ---
 
@@ -172,52 +172,43 @@ Before performing any actual flight sequence, always execute these non-takeoff t
 
 ## :green_square: Flight Control & Safety
 ### :red_square: Main Control Template with Integrated Failsafes
-- A robust program template that guarantees a safe touchdown (`single_fly_touchdown`) even if the script encounters errors or user interruptions (`Ctrl+C`).
+- A robust boilerplate template using `SafeDroneWatcher`. It automatically tracks telemetry and forces emergency routines (`touchdown` or `disarm`) if the script encounters errors or terminal user interruptions (`Ctrl+C`).
 
 #### :o:Practice[failsafe_template]
 - Save the following sample code as a python file and execute it. (`C:\oit\home\ipbl\sample_main_failsafe.py`)
 - `sample_main_failsafe.py`
     ```python
-    import pyhula
     import sys
+    import pyhula
+    from mylibs.safe_drone_watcher import SafeDroneWatcher
 
     DRONE_IP = "192.168.100.101"
 
-    try:
-        api = pyhula.UserApi()
-    except Exception as e:
-        print(f"[ERROR] Failed to initialize pyhula: {e}")
-        sys.exit(1)
-
-    def main():
+    def main(api):
+        print(f"Connecting to drone at {DRONE_IP}...")
         if not api.connect(DRONE_IP):
-            print("\n[!!! COM LOSS DETECTED !!!] Aborting program.")
-            sys.exit(1)
-        
-        battery = api.get_battery()
-        print(f"[STATUS] Initial Battery Check: {battery}%")
+            print("[ERROR] Connection failed. Please check Wi-Fi network.")
+            return
 
-        try:
-            print("\n--- Starting Flight Sequence ---")
-            # --- WRITE YOUR FLIGHT COMMANDS HERE ---
-            # api.single_fly_takeoff()
-            pass
-            # --------------------------------------
-        except KeyboardInterrupt:
-            print("\n[USER INTERRUPT] Program stopped by user (Ctrl+C).")
-        except Exception as e:
-            print(f"\n[UNEXPECTED ERROR] {e}")
-        finally:
-            print("\n[SAFETY] Sending TOUCHDOWN command.")
-            try:
-                # Force immediate touchdown sequence for safety
-                api.single_fly_touchdown() 
-            except Exception:
-                print("Failed to send touchdown command. Recover manually.")
-            print("Program terminated safely.")
+        # -------------------------------------------------------------
+        # WRITE YOUR FLIGHT COMMANDS HERE (e.g., api.single_fly_takeoff())
+        # -------------------------------------------------------------
+        
+        print("Drone connected successfully. Executing mission logic...")
+
 
     if __name__ == "__main__":
-        main()
+        try:
+            hula_api = pyhula.UserApi()
+        except Exception as initialization_error:
+            print(f"[ERROR] Failed to initialize pyhula API: {initialization_error}")
+            sys.exit(1)
+
+        with SafeDroneWatcher(hula_api):
+            try:
+                main(hula_api)
+            except KeyboardInterrupt:
+                raise
     ```
 
 ---
