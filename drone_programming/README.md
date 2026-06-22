@@ -164,8 +164,8 @@ Before performing any actual flight sequence, always execute these non-takeoff t
 - A robust boilerplate template using `SafeDroneWatcher`. It automatically tracks telemetry and forces emergency routines (`touchdown` or `disarm`) if the script encounters errors or terminal user interruptions (`Ctrl+C`).
 
 #### :o:Practice[failsafe_template]
-- Save the following sample code as a python file and execute it. (`C:\oit\home\ipbl\sample_main_failsafe.py`)
-- `sample_main_failsafe.py`
+- Save the following sample code as a python file and execute it. (`C:\oit\home\ipbl\main_failsafe.py`)
+- `main_failsafe.py`
     ```python
     import sys
     import time
@@ -202,8 +202,8 @@ Before performing any actual flight sequence, always execute these non-takeoff t
 - Inside this loop, we inject `DetectionTimer` to handle **Debouncing (Time Stabilization)** and absorb physical hardware delay by controlling transmission intervals without stopping the video frame pipeline.
 
 #### :o:Practice[camera_angle_control]
-- Save the following sample code as a python file, and execute it. (`C:\oit\home\ipbl\sample_hula_vision_control.py`)
-- `sample_hula_vision_control.py`
+- Save the following sample code as a python file, and execute it. (`C:\oit\home\ipbl\hula_vision_control.py`)
+- `hula_vision_control.py`
     ```python
     import sys
     import time
@@ -304,8 +304,8 @@ Before performing any actual flight sequence, always execute these non-takeoff t
 - Modular functions to prevent crashes and safely handle flight anomalies based on battery levels.
 
 #### :o:Practice[emergency_routines]
-- Save the following sample code as a python file, and execute it. (`C:\oit\home\ipbl\sample_hula_safety.py`)
-- `sample_hula_safety.py`
+- Save the following sample code as a python file, and execute it. (`C:\oit\home\ipbl\hula_safety.py`)
+- `hula_safety.py`
     ```python
     import pyhula
 
