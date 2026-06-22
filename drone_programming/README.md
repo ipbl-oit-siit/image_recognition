@@ -25,41 +25,29 @@ Before performing any actual flight sequence, always execute these non-takeoff t
 - Save the following sample code as a python file, and execute it. (`C:\oit\home\ipbl\sample_hula_ping.py`)
 - `sample_hula_ping.py`
     ```python
-    import pyhula
     import sys
     import time
+    import pyhula
 
-    DRONE_IP = "192.168.100.101"
-     
-    try:
-        api = pyhula.UserApi()
-    except Exception as e:
-        print(f"[ERROR] Failed to initialize pyhula: {e}")
-        sys.exit(1)
-     
-    def send_test_command(command: str):
+    def main():
+        # 1. Connect first
         try:
-            print(f"[TX]: {command}")
-            if command == "command":
-                api.connect(DRONE_IP)
-                time.sleep(1.0)
-                response = "ok"
-            elif command == "battery?":
-                res_battery = api.get_battery()
-                response = str(res_battery)
-            else:
-                response = "unknown command"
-            print(f"[RX]: {response}")
-            return response
+            api = pyhula.UserApi()
+            print("Connecting to drone at 192.168.100.116...")
+            api.connect("192.168.100.116")
+            time.sleep(3.0)
+        except Exception as e:
+            print(f"[ERROR] Failed to setup drone: {e}")
+            sys.exit(1)
+     
+        # 2. Execute target communication task
+        print("--- Initiating Drone Communication Test ---")
+        try:
+            battery = api.get_battery()
+            print(f"\n[STATUS] Connection successful. Battery Level: {battery}%")
         except Exception as e:
             print(f"[ERROR] Communication error occurred: {e}")
             sys.exit(1)
-     
-    def main():
-        print("--- Initiating Drone Communication Test ---")
-        send_test_command("command")
-        battery = send_test_command("battery?")
-        print(f"\n[STATUS] Connection successful. Battery Level: {battery}%")
      
     if __name__ == "__main__":
         main()
@@ -79,35 +67,30 @@ Before performing any actual flight sequence, always execute these non-takeoff t
     import pyhula
     from mylibs.safe_drone_watcher import SafeDroneWatcher
 
-    DRONE_IP = "192.168.100.101"
-
-    def main(api):
-        print(f"Connecting to drone at {DRONE_IP}...")
-        if not api.connect(DRONE_IP):
-            print("[ERROR] Connection failed. Please check Wi-Fi network.")
-            return
-        time.sleep(1.0)
-
-        print("\n--- Starting Propeller Rotation Test (Arming) ---")
-        api.plane_fly_arm()  
-        print("Motors spinning at idle speed... checking hardware status.")
-        time.sleep(3)
-        
-        api.plane_fly_disarm()
-        print("Motors stopped safely (Disarmed).")
-
-    if __name__ == "__main__":
+    def main():
+        # 1. Connect first
         try:
-            hula_api = pyhula.UserApi()
-        except Exception as initialization_error:
-            print(f"[ERROR] Failed to initialize pyhula API: {initialization_error}")
+            api = pyhula.UserApi()
+            print("Connecting to drone at 192.168.100.116...")
+            api.connect("192.168.100.116")
+            time.sleep(3.0)
+        except Exception as e:
+            print(f"[ERROR] Failed to setup drone: {e}")
             sys.exit(1)
 
-        with SafeDroneWatcher(hula_api):
-            try:
-                main(hula_api)
-            except KeyboardInterrupt:
-                raise
+        # 2. Activate watcher protection right after connection
+        with SafeDroneWatcher(api):
+            # 3. Safe flight command logic sequence
+            print("\n--- Starting Propeller Rotation Test (Arming) ---")
+            api.plane_fly_arm()  
+            print("Motors spinning at idle speed... checking hardware status.")
+            time.sleep(3)
+            
+            api.plane_fly_disarm()
+            print("Motors stopped safely (Disarmed).")
+
+    if __name__ == "__main__":
+        main()
     ```
 
 ---
@@ -123,54 +106,49 @@ Before performing any actual flight sequence, always execute these non-takeoff t
     import time
     import cv2
     import pyhula
-    from mylibs.my_av2 import VideoCapture
     from mylibs.safe_drone_watcher import SafeDroneWatcher
+    from mylibs.my_av2 import VideoCapture
 
-    DRONE_IP = "192.168.100.101"
-
-    def main(api):
-        print(f"Connecting to drone at {DRONE_IP}...")
-        if not api.connect(DRONE_IP):
-            print("[ERROR] Connection failed. Please check Wi-Fi network.")
-            return
-        time.sleep(1.0)
-
-        cap = VideoCapture(api)
-        if not cap.isOpened():
-            print("[ERROR] Cannot open drone video stream. Check Wi-Fi connection.")
-            return
-
-        print("\n--- Video Stream Started ---")
-        print("Press 'q' inside the video window to quit.")
-
-        while True:
-            ret, frame = cap.read()
-            if not ret or frame is None:
-                if cv2.waitKey(1) & 0xFF == ord('q'):
-                    break
-                continue
-
-            cv2.imshow("Hula-JP Ground Camera Test", frame)
-            if cv2.waitKey(1) & 0xFF == ord('q'):
-                print("Closing video stream...")
-                break
-
-        cap.release()
-        cv2.destroyAllWindows()
-        print("Resources released successfully.")
-
-    if __name__ == "__main__":
+    def main():
+        # 1. Connect first
         try:
-            hula_api = pyhula.UserApi()
-        except Exception as initialization_error:
-            print(f"[ERROR] Failed to initialize pyhula API: {initialization_error}")
+            api = pyhula.UserApi()
+            print("Connecting to drone at 192.168.100.116...")
+            api.connect("192.168.100.116")
+            time.sleep(3.0)
+        except Exception as e:
+            print(f"[ERROR] Failed to setup drone: {e}")
             sys.exit(1)
 
-        with SafeDroneWatcher(hula_api):
-            try:
-                main(hula_api)
-            except KeyboardInterrupt:
-                raise
+        # 2. Activate watcher protection right after connection
+        with SafeDroneWatcher(api):
+            # 3. Enter main loop stream pipeline
+            cap = VideoCapture(api)
+            if not cap.isOpened():
+                print("[ERROR] Cannot open drone video stream. Check Wi-Fi connection.")
+                return
+
+            print("\n--- Video Stream Started ---")
+            print("Press 'q' inside the video window to quit.")
+
+            while True:
+                ret, frame = cap.read()
+                if not ret or frame is None:
+                    if cv2.waitKey(1) & 0xFF == ord('q'):
+                        break
+                    continue
+
+                cv2.imshow("Hula-JP Ground Camera Test", frame)
+                if cv2.waitKey(1) & 0xFF == ord('q'):
+                    print("Closing video stream...")
+                    break
+
+            cap.release()
+            cv2.destroyAllWindows()
+            print("Resources released successfully.")
+
+    if __name__ == "__main__":
+        main()
     ```
 
 ---
@@ -188,34 +166,27 @@ Before performing any actual flight sequence, always execute these non-takeoff t
     import pyhula
     from mylibs.safe_drone_watcher import SafeDroneWatcher
 
-    DRONE_IP = "192.168.100.101"
-
-    def main(api):
-        print(f"Connecting to drone at {DRONE_IP}...")
-        if not api.connect(DRONE_IP):
-            print("[ERROR] Connection failed. Please check Wi-Fi network.")
-            return
-        time.sleep(1.0)
-
-        # -------------------------------------------------------------
-        # WRITE YOUR FLIGHT COMMANDS HERE (e.g., api.single_fly_takeoff())
-        # -------------------------------------------------------------
-        
-        print("Drone connected successfully. Executing mission logic...")
-
-
-    if __name__ == "__main__":
+    def main():
+        # 1. Connect first
         try:
-            hula_api = pyhula.UserApi()
-        except Exception as initialization_error:
-            print(f"[ERROR] Failed to initialize pyhula API: {initialization_error}")
+            api = pyhula.UserApi()
+            print("Connecting to drone at 192.168.100.116...")
+            api.connect("192.168.100.116")
+            time.sleep(3.0)
+        except Exception as e:
+            print(f"[ERROR] Failed to setup drone: {e}")
             sys.exit(1)
 
-        with SafeDroneWatcher(hula_api):
-            try:
-                main(hula_api)
-            except KeyboardInterrupt:
-                raise
+        # 2. Activate watcher protection right after connection
+        with SafeDroneWatcher(api):
+            # 3. Place your main flight logic / loop structure here
+            # -------------------------------------------------------------
+            # WRITE YOUR FLIGHT COMMANDS HERE (e.g., api.single_fly_takeoff())
+            # -------------------------------------------------------------
+            print("Executing mission logic...")
+
+    if __name__ == "__main__":
+        main()
     ```
 
 ---
@@ -232,93 +203,87 @@ Before performing any actual flight sequence, always execute these non-takeoff t
     import time
     import cv2
     import pyhula
+    from mylibs.safe_drone_watcher import SafeDroneWatcher
     from mylibs.my_av2 import VideoCapture
     from mylibs.detection_timer import DetectionTimer
-    from mylibs.safe_drone_watcher import SafeDroneWatcher
 
-    DRONE_IP = "192.168.100.101"
-
-    def main(api):
-        print(f"Connecting to drone at {DRONE_IP}...")
-        if not api.connect(DRONE_IP):
-            print("[ERROR] Connection failed. Please check Wi-Fi network.")
-            return
-        time.sleep(1.0)
-
-        up_timer = DetectionTimer(target_ms=400.0, grace_ms=200.0)
-        down_timer = DetectionTimer(target_ms=400.0, grace_ms=200.0)
-        camera_angle = 0  
-
-        cap = VideoCapture(api)
-        if not cap.isOpened():
-            print("[ERROR] Cannot connect to drone video stream.")
-            return
-
-        print("Streaming active. Control gimbal using vision logic in non-blocking loop...")
-        print("Press 'q' in the video window or press Ctrl+C in the terminal to stop.")
-        
-        while True:
-            ret, frame = cap.read()
-            if not ret or frame is None:
-                if cv2.waitKey(1) & 0xFF == ord('q'):
-                    print("Quit requested by user via OpenCV window.")
-                    break
-                continue
-            
-            current_msec = cap.get(cv2.CAP_PROP_POS_MSEC)
-            
-            is_up_detected = False
-            is_down_detected = False
-            
-            key_press = cv2.waitKey(1) & 0xFF
-            if key_press == ord('u'):    
-                is_up_detected = True
-            elif key_press == ord('d'):  
-                is_down_detected = True
-            elif key_press == ord('q'):
-                print("Quit requested by user via OpenCV window.")
-                break
-
-            up_reached = up_timer.update(is_up_detected, current_msec)
-            down_reached = down_timer.update(is_down_detected, current_msec)
-
-            if up_reached:
-                if camera_angle < 90:
-                    camera_angle += 10
-                    api.Plane_cmd_camera_angle(0, camera_angle)
-                    print(f"[GIMBAL UP] Target Stable. Snapping to: {camera_angle} deg")
-                up_timer.is_reached = False
-                up_timer.start_time = None
-
-            elif down_reached:
-                if camera_angle > -90:
-                    camera_angle -= 10
-                    api.Plane_cmd_camera_angle(1, abs(camera_angle))
-                    print(f"[GIMBAL DOWN] Target Stable. Snapping to: {camera_angle} deg")
-                down_timer.is_reached = False
-                down_timer.start_time = None
-
-            cv2.putText(frame, f"Angle: {camera_angle} | Time: {int(current_msec)}ms", 
-                        (20, 40), cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 255, 255), 2)
-            cv2.imshow("Real-Time Tracking & Control Window", frame)
-
-        cap.release()
-        cv2.destroyAllWindows()
-        print("Video resources cleaned up safely.")
-
-
-    if __name__ == "__main__":
+    def main():
+        # 1. Connect first
         try:
-            hula_api = pyhula.UserApi()
-        except Exception as initialization_error:
-            print(f"[ERROR] Failed to initialize pyhula API: {initialization_error}")
+            api = pyhula.UserApi()
+            print("Connecting to drone at 192.168.100.116...")
+            api.connect("192.168.100.116")
+            time.sleep(3.0)
+        except Exception as e:
+            print(f"[ERROR] Failed to setup drone: {e}")
             sys.exit(1)
 
-        with SafeDroneWatcher(hula_api):
-            try:
-                main(hula_api)
-            except KeyboardInterrupt:
-                raise
+        # 2. Activate watcher protection right after connection
+        with SafeDroneWatcher(api):
+            # 3. Enter real-time tracking and non-blocking loop structure
+            up_timer = DetectionTimer(target_ms=400.0, grace_ms=200.0)
+            down_timer = DetectionTimer(target_ms=400.0, grace_ms=200.0)
+            camera_angle = 0  
+
+            cap = VideoCapture(api)
+            if not cap.isOpened():
+                print("[ERROR] Cannot connect to drone video stream.")
+                return
+
+            print("Streaming active. Control gimbal using vision logic in non-blocking loop...")
+            print("Press 'q' in the video window to stop.")
+            
+            while True:
+                ret, frame = cap.read()
+                if not ret or frame is None:
+                    if cv2.waitKey(1) & 0xFF == ord('q'):
+                        print("Quit requested by user via OpenCV window.")
+                        break
+                    continue
+                
+                current_msec = cap.get(cv2.CAP_PROP_POS_MSEC)
+                
+                is_up_detected = False
+                is_down_detected = False
+                
+                key_press = cv2.waitKey(1) & 0xFF
+                if key_press == ord('u'):    
+                    is_up_detected = True
+                elif key_press == ord('d'):  
+                    is_down_detected = True
+                elif key_press == ord('q'):
+                    print("Quit requested by user via OpenCV window.")
+                    break
+
+                up_reached = up_timer.update(is_up_detected, current_msec)
+                down_reached = down_timer.update(is_down_detected, current_msec)
+
+                if up_reached:
+                    if camera_angle < 90:
+                        camera_angle += 10
+                        api.Plane_cmd_camera_angle(0, camera_angle)
+                        print(f"[GIMBAL UP] Target Stable. Snapping to: {camera_angle} deg")
+                    up_timer.is_reached = False
+                    up_timer.start_time = None
+
+                elif down_reached:
+                    if camera_angle > -90:
+                        camera_angle -= 10
+                        api.Plane_cmd_camera_angle(1, abs(camera_angle))
+                        print(f"[GIMBAL DOWN] Target Stable. Snapping to: {camera_angle} deg")
+                    down_timer.is_reached = False
+                    down_timer.start_time = None
+
+                cv2.putText(frame, f"Angle: {camera_angle} | Time: {int(current_msec)}ms", 
+                            (20, 40), cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 255, 255), 2)
+                cv2.imshow("Real-Time Tracking & Control Window", frame)
+
+            cap.release()
+            cv2.destroyAllWindows()
+            print("Video resources cleaned up safely.")
+
+    if __name__ == "__main__":
+        main()
     ```
 
 > [!NOTE]
