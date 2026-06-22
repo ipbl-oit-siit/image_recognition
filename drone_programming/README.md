@@ -207,7 +207,7 @@ Before performing any actual flight sequence, always execute these non-takeoff t
 - This practice ensures that your loops remain completely responsive during flight. It allows you to verify that an emergency touchdown is triggered instantly at any millisecond via either the 'q' key in the video window or Ctrl+C in the terminal.
 
 #### :o:Practice[hover_and_failsafe_test]
-- Now let's reuse the exact same `DetectionTimer` class to track flight mission durations. We will execute a 5-second hover mission while verifying that emergency interrupts (`q` or `Ctrl+C`) function instantly during active processing.
+- Now let's reuse the exact same `DetectionTimer` class to track flight mission durations. **The drone will remain securely on the ground until you manually press the `f` key.** Once airborne, it will execute a 5-second hover mission.
 - Save the following sample code as a python file, and execute it. (`C:\oit\py26\ipbl\hula_hover_test.py`)
 - `hula_hover_test.py`
     ```python
@@ -236,34 +236,47 @@ Before performing any actual flight sequence, always execute these non-takeoff t
 
             # Reuse DetectionTimer to monitor a 5-second (5000ms) continuous hover state
             hover_timer = DetectionTimer(target_ms=5000.0)
+            
+            # Track flight status states
+            is_airborne = False
 
             print("Video stream loop started.")
-            print(">>> TO INTERRUPT & TOUCHDOWN: Press 'q' in the window OR [Ctrl+C] in the terminal <<<")
+            print(">>> TO TAKE OFF  : Press 'f' inside the video window <<<")
+            print(">>> TO INTERRUPT : Press 'q' in the window OR [Ctrl+C] in the terminal <<<")
 
             # --- Pure Video Capture Loop Control ---
             while cap.isOpened():
                 ret, frame = cap.read()
+                
+                # Fetch keyboard state exactly once per frame execution pass
+                key_press = cv2.waitKey(1) & 0xFF
+                if key_press == ord('q'):
+                    print("\n[INTERRUPT] 'q' key pressed. Breaking loop for landing.")
+                    break
+
                 if not ret or frame is None:
-                    if cv2.waitKey(1) & 0xFF == ord('q'):
-                        print("[INTERRUPT] Quit requested during stream loss.")
-                        break
                     continue
 
                 current_msec = cap.get(cv2.CAP_PROP_POS_MSEC)
                 
-                # --- Takeoff Sequence Inside the Loop Control ---
-                # Trigger takeoff on the very first valid frame. 
-                # Since start_time is None, we know the flight clock hasn't started yet.
-                if hover_timer.start_time is None:
-                    print("\n--- Starting Takeoff Sequence ---")
-                    api.single_fly_takeoff()  # Blocks here for several seconds until safely airborne
-                    
-                    # Once the blocking takeoff finishes, the drone is already in a stable hover.
-                    # Force-read a fresh post-lag timestamp to start the clock exactly on hover.
-                    hover_timer.start_time = cap.get(cv2.CAP_PROP_POS_MSEC)
-                    print(f"Hover clock started at: {int(hover_timer.start_time)}ms")
-                    continue
+                # --- Takeoff Logic Controlled by 'f' Key ---
+                if not is_airborne:
+                    if key_press == ord('f'):
+                        print("\n--- [COMMAND] 'f' pressed. Starting Takeoff Sequence ---")
+                        api.single_fly_takeoff()  # Blocks here for several seconds until safely airborne
+                        
+                        # Set flight clocks to clear out execution and physical asset lag
+                        hover_timer.start_time = cap.get(cv2.CAP_PROP_POS_MSEC)
+                        is_airborne = True
+                        print(f"Hover clock started at: {int(hover_timer.start_time)}ms")
+                    else:
+                        # Display ground standby status information on screen
+                        cv2.putText(frame, "STANDBY ON GROUND | Press 'f' to Takeoff", 
+                                    (20, 40), cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 0, 255), 2)
+                        cv2.imshow("Real-Time Flight Control Feed", frame)
+                        continue
 
+                # --- Active Airborne Mission Sequence ---
                 # Continuously pass True since the drone is actively maintaining its hover state
                 is_hover_completed = hover_timer.update(True, current_msec)
 
@@ -271,12 +284,8 @@ Before performing any actual flight sequence, always execute these non-takeoff t
                     print("\n[SUCCESS] 5-second hover time elapsed.")
                     break
 
-                if cv2.waitKey(1) & 0xFF == ord('q'):
-                    print("\n[INTERRUPT] 'q' key pressed. Breaking loop for landing.")
-                    break
-
                 # Display pure hover status on the video feed
-                cv2.putText(frame, f"HOVERING ACTIVE | Time: {int(current_msec)}ms", 
+                cv2.putText(frame, f"HOVERING ACTIVE | Time: {int(current_msec - hover_timer.start_time)}ms", 
                             (20, 40), cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 255, 0), 2)
                 cv2.imshow("Real-Time Flight Control Feed", frame)
 
@@ -293,12 +302,9 @@ Before performing any actual flight sequence, always execute these non-takeoff t
 
 > [!NOTE]
 > ### Explanation: hover_and_failsafe_test
-> - **The Power of `cap.isOpened()` Loop Control**: By driving the entire flight lifecycle inside the core camera loop, the stream initializes first, allowing safety monitoring to remain responsive.
+> - **`is_airborne` Flag State Control**: We initialized a boolean tracker `is_airborne = False`. Until this flag changes to `True`, the code inside the loop bypasses the flight countdown, locks onto the ground standby loop pass, and renders a safe red text warning onto the screen.
+> - **Unified Key Processing**: Key inputs are captured exactly once per loop pass into the `key_press` variable. This avoids the latency degradation and non-deterministic frame skips caused by multiple `cv2.waitKey()` queries inside a single thread iteration.
 > - **Zeroing Takeoff Lag**: Placing `api.single_fly_takeoff()` inside the loop right before capturing the baseline `hover_timer.start_time` ensures that the heavy physical ascent delay is completely excluded. The 5-second countdown tracks only stable, airborne time.
-> - **Reusing the DetectionTimer for Flight Duration**: The `DetectionTimer` class is a versatile tool for time tracking. By passing `True` into `.update(True, current_msec)` every frame after takeoff, you tell the timer that the drone is continuously maintaining its hovering state. Once this state accumulates up to `target_ms=5000.0`, the method returns `True` to signify mission completion.
-> - **Verification of Dual-Layer Interrupts**:
->   1. **The 'q' Key**: Triggers a clean loop break. The script immediately proceeds to the regular landing command (`api.single_fly_touchdown()`).
->   2. **Ctrl + C**: Simulates a sudden runtime script interruption. The `SafeDroneWatcher` context manager catches the exception and forces an immediate touchdown routine under the hood, ensuring the drone never gets stranded in the air.
 
 ---
 
