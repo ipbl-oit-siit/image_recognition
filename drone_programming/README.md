@@ -228,7 +228,7 @@ Before performing any actual flight sequence, always execute these non-takeoff t
         # 1. Connect first
         try:
             api = pyhula.UserApi()
-            print("Connecting to drone at ", DRONE_IP, "...")
+            print(f"Connecting to drone at {DRONE_IP}...")
             api.connect(DRONE_IP)
             time.sleep(3.0)
         except Exception as e:
@@ -278,7 +278,9 @@ Before performing any actual flight sequence, always execute these non-takeoff t
                 if up_reached:
                     if camera_angle < 90:
                         camera_angle += 10
-                        api.Plane_cmd_camera_angle(0, camera_angle)
+                        # Prepare arguments for the API
+                        direction_flag = 0 if camera_angle >= 0 else 1
+                        api.Plane_cmd_camera_angle(direction_flag, abs(camera_angle))
                         print(f"[GIMBAL UP] Target Stable. Snapping to: {camera_angle} deg")
                     up_timer.is_reached = False
                     up_timer.start_time = None
@@ -286,12 +288,14 @@ Before performing any actual flight sequence, always execute these non-takeoff t
                 elif down_reached:
                     if camera_angle > -90:
                         camera_angle -= 10
-                        api.Plane_cmd_camera_angle(1, abs(camera_angle))
+                        # Prepare arguments for the API
+                        direction_flag = 0 if camera_angle >= 0 else 1
+                        api.Plane_cmd_camera_angle(direction_flag, abs(camera_angle))
                         print(f"[GIMBAL DOWN] Target Stable. Snapping to: {camera_angle} deg")
                     down_timer.is_reached = False
                     down_timer.start_time = None
 
-                cv2.putText(frame, f"Angle: {camera_angle} | Time: {int(current_msec)}ms", 
+                cv2.putText(frame, f"Angle: {camera_angle} deg | Time: {int(current_msec)}ms", 
                             (20, 40), cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 255, 255), 2)
                 cv2.imshow("Real-Time Tracking & Control Window", frame)
 
@@ -310,6 +314,11 @@ Before performing any actual flight sequence, always execute these non-takeoff t
 >   Just like the ARuCo card locking system you practiced earlier (`imp_time_trigger.py`), this method tracks how long a signal stays active to filter out unstable physical chattering.
 >   * **Target Lock (400ms)**: Instead of snapping the camera gimbal the exact millisecond a key is touched, it requires the input signal to be held for `target_ms=400.0` before sending commands. This prevents flooding the drone with excessive control packets.
 >   * **Debouncing Grace (200ms)**: Standard OS keyboard inputs naturally stutter (briefly drop to `False`) when held down. The built-in `grace_ms=200.0` safety buffer ensures that a fraction of a second of key signal drop won't instantly wipe out your accumulated timer progress.
+> - **`api.Plane_cmd_camera_angle(direction, angle)`**:
+>   This specific API method requires two distinct arguments to change the gimbal's physical tilt direction:
+>   * **`direction`**: Takes `0` for horizontal or upward positions (positive angles), and `1` for downward positions (negative angles).
+>   * **`angle`**: Requires a **positive absolute value** (`0` to `90`). Passing a negative number directly will cause an internal system crash (`struct.error`).
+>   * *Implementation Tip*: In our code, we map a single, intuitive `camera_angle` integer (`-90` to `90`) into these two hardware parameters dynamically using `direction_flag = 0 if camera_angle >= 0 else 1` and `abs(camera_angle)`.
 
 ---
 
