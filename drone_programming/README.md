@@ -22,19 +22,21 @@ Before performing any actual flight sequence, always execute these non-takeoff t
 - Establish network synchronization and retrieve the current battery level without starting the motors.
 
 #### :o:Practice[ping_and_battery]
-- Save the following sample code as a python file, and execute it. (`C:\oit\home\ipbl\sample_hula_ping.py`)
-- `sample_hula_ping.py`
+- Save the following sample code as a python file, and execute it. (`C:\oit\home\ipbl\hula_ping.py`)
+- `hula_ping.py`
     ```python
     import sys
     import time
     import pyhula
 
+    DRONE_IP = "192.168.100.116"
+    
     def main():
         # 1. Connect first
         try:
             api = pyhula.UserApi()
-            print("Connecting to drone at 192.168.100.116...")
-            api.connect("192.168.100.116")
+            print("Connecting to drone at ", DRONE_IP, "...")
+            api.connect(DRONE_IP)
             time.sleep(3.0)
         except Exception as e:
             print(f"[ERROR] Failed to setup drone: {e}")
@@ -59,20 +61,22 @@ Before performing any actual flight sequence, always execute these non-takeoff t
 - Spin the propellers at a low idle speed on the ground (`plane_fly_arm`) and stop them (`plane_fly_disarm`) to check motor status without generating lift.
 
 #### :o:Practice[motor_test]
-- Save the following sample code as a python file, and execute it. (`C:\oit\home\ipbl\sample_hula_motor_test.py`)
-- `sample_hula_motor_test.py`
+- Save the following sample code as a python file, and execute it. (`C:\oit\home\ipbl\hula_motor_test.py`)
+- `hula_motor_test.py`
     ```python
     import sys
     import time
     import pyhula
     from mylibs.safe_drone_watcher import SafeDroneWatcher
 
+    DRONE_IP = "192.168.100.116"
+    
     def main():
         # 1. Connect first
         try:
             api = pyhula.UserApi()
-            print("Connecting to drone at 192.168.100.116...")
-            api.connect("192.168.100.116")
+            print("Connecting to drone at ", DRONE_IP, "...")
+            api.connect(DRONE_IP)
             time.sleep(3.0)
         except Exception as e:
             print(f"[ERROR] Failed to setup drone: {e}")
@@ -99,8 +103,8 @@ Before performing any actual flight sequence, always execute these non-takeoff t
 - Verify the video pipeline and latency by streaming the camera feed to an OpenCV window while the drone stays securely on the ground.
 
 #### :o:Practice[stream_test]
-- Save the following sample code as a python file, and execute it. (`C:\oit\home\ipbl\sample_hula_stream_test.py`)
-- `sample_hula_stream_test.py`
+- Save the following sample code as a python file, and execute it. (`C:\oit\home\ipbl\hula_stream_test.py`)
+- `hula_stream_test.py`
     ```python
     import sys
     import time
@@ -109,12 +113,14 @@ Before performing any actual flight sequence, always execute these non-takeoff t
     from mylibs.safe_drone_watcher import SafeDroneWatcher
     from mylibs.my_av2 import VideoCapture
 
+    DRONE_IP = "192.168.100.116"
+    
     def main():
         # 1. Connect first
         try:
             api = pyhula.UserApi()
-            print("Connecting to drone at 192.168.100.116...")
-            api.connect("192.168.100.116")
+            print("Connecting to drone at ", DRONE_IP, "...")
+            api.connect(DRONE_IP)
             time.sleep(3.0)
         except Exception as e:
             print(f"[ERROR] Failed to setup drone: {e}")
