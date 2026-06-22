@@ -24,7 +24,7 @@ Before performing any actual flight sequence, always execute these non-takeoff t
 #### :o:Practice[ping_and_battery]
 - Save the following sample code as a python file, and execute it. (`C:\oit\py26\ipbl\hula_ping.py`)
 - `hula_ping.py`
-    ```python
+```python
     import sys
     import time
     import pyhula
@@ -63,7 +63,7 @@ Before performing any actual flight sequence, always execute these non-takeoff t
 #### :o:Practice[motor_test]
 - Save the following sample code as a python file, and execute it. (`C:\oit\py26\ipbl\hula_motor_test.py`)
 - `hula_motor_test.py`
-    ```python
+```python
     import sys
     import time
     import pyhula
@@ -105,7 +105,7 @@ Before performing any actual flight sequence, always execute these non-takeoff t
 #### :o:Practice[stream_test]
 - Save the following sample code as a python file, and execute it. (`C:\oit\py26\ipbl\hula_stream_test.py`)
 - `hula_stream_test.py`
-    ```python
+```python
     import sys
     import time
     import cv2
@@ -136,15 +136,17 @@ Before performing any actual flight sequence, always execute these non-takeoff t
 
             while cap.isOpened():
                 ret, frame = cap.read()
+                
+                # Fetch keyboard input once at the top of the loop execution
+                key_press = cv2.waitKey(1) & 0xFF
+                if key_press == ord('q'):
+                    print("Closing video stream...")
+                    break
+
                 if not ret or frame is None:
-                    if cv2.waitKey(1) & 0xFF == ord('q'):
-                        break
                     continue
 
                 cv2.imshow("Hula-JP Ground Camera Test", frame)
-                if cv2.waitKey(1) & 0xFF == ord('q'):
-                    print("Closing video stream...")
-                    break
 
             cap.release()
             cv2.destroyAllWindows()
@@ -163,7 +165,7 @@ Before performing any actual flight sequence, always execute these non-takeoff t
 #### :o:Practice[failsafe_template]
 - Save the following sample code as a python file and execute it. (`C:\oit\py26\ipbl\main_failsafe.py`)
 - `main_failsafe.py`
-    ```python
+```python
     import sys
     import time
     import pyhula
@@ -210,7 +212,7 @@ Before performing any actual flight sequence, always execute these non-takeoff t
 - Now let's reuse the exact same `DetectionTimer` class to track flight mission durations. **The drone will remain securely on the ground until you manually press the `f` key.** Once airborne, it will execute a 5-second hover mission.
 - Save the following sample code as a python file, and execute it. (`C:\oit\py26\ipbl\hula_hover_test.py`)
 - `hula_hover_test.py`
-    ```python
+```python
     import sys
     import time
     import cv2
@@ -244,11 +246,11 @@ Before performing any actual flight sequence, always execute these non-takeoff t
             print(">>> TO TAKE OFF  : Press 'f' inside the video window <<<")
             print(">>> TO INTERRUPT : Press 'q' in the window OR [Ctrl+C] in the terminal <<<")
 
-            # --- Pure Video Capture Loop Control ---
+            # --- Video Capture and Control Loop ---
             while cap.isOpened():
                 ret, frame = cap.read()
                 
-                # Fetch keyboard state exactly once per frame execution pass
+                # Fetch keyboard state exactly once per frame
                 key_press = cv2.waitKey(1) & 0xFF
                 if key_press == ord('q'):
                     print("\n[INTERRUPT] 'q' key pressed. Breaking loop for landing.")
@@ -263,28 +265,28 @@ Before performing any actual flight sequence, always execute these non-takeoff t
                 if not is_airborne:
                     if key_press == ord('f'):
                         print("\n--- [COMMAND] 'f' pressed. Starting Takeoff Sequence ---")
-                        api.single_fly_takeoff()  # Blocks here for several seconds until safely airborne
+                        api.single_fly_takeoff()  # Blocks here until safely airborne
                         
-                        # Set flight clocks to clear out execution and physical asset lag
-                        hover_timer.start_time = cap.get(cv2.CAP_PROP_POS_MSEC)
+                        # Set the timer baseline exactly when hover is achieved
+                        hover_timer.start_time = current_msec
                         is_airborne = True
-                        print(f"Hover clock started at: {int(hover_timer.start_time)}ms")
+                        print(f"Hover clock started cleanly at stable hover: {int(hover_timer.start_time)}ms")
                     else:
-                        # Display ground standby status information on screen
+                        # Display ground standby status on screen
                         cv2.putText(frame, "STANDBY ON GROUND | Press 'f' to Takeoff", 
                                     (20, 40), cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 0, 255), 2)
                         cv2.imshow("Real-Time Flight Control Feed", frame)
                         continue
 
                 # --- Active Airborne Mission Sequence ---
-                # Continuously pass True since the drone is actively maintaining its hover state
+                # Pass True since the drone is actively maintaining its hover state
                 is_hover_completed = hover_timer.update(True, current_msec)
 
                 if is_hover_completed:
                     print("\n[SUCCESS] 5-second hover time elapsed.")
                     break
 
-                # Display pure hover status on the video feed
+                # Display hover status and elapsed time on the video feed
                 cv2.putText(frame, f"HOVERING ACTIVE | Time: {int(current_msec - hover_timer.start_time)}ms", 
                             (20, 40), cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 255, 0), 2)
                 cv2.imshow("Real-Time Flight Control Feed", frame)
@@ -302,9 +304,8 @@ Before performing any actual flight sequence, always execute these non-takeoff t
 
 > [!NOTE]
 > ### Explanation: hover_and_failsafe_test
-> - **`is_airborne` Flag State Control**: We initialized a boolean tracker `is_airborne = False`. Until this flag changes to `True`, the code inside the loop bypasses the flight countdown, locks onto the ground standby loop pass, and renders a safe red text warning onto the screen.
 > - **Unified Key Processing**: Key inputs are captured exactly once per loop pass into the `key_press` variable. This avoids the latency degradation and non-deterministic frame skips caused by multiple `cv2.waitKey()` queries inside a single thread iteration.
-> - **Zeroing Takeoff Lag**: Placing `api.single_fly_takeoff()` inside the loop right before capturing the baseline `hover_timer.start_time` ensures that the heavy physical ascent delay is completely excluded. The 5-second countdown tracks only stable, airborne time.
+> - **Precise Flight Time Tracing**: By assigning `hover_timer.start_time = current_msec` right after the blocking `api.single_fly_takeoff()` call finishes, the script completely excludes the takeoff duration. The 5-second countdown begins exactly when the drone enters its stable, airborne hover state.
 
 ---
 
@@ -316,7 +317,7 @@ Before performing any actual flight sequence, always execute these non-takeoff t
 #### :o:Practice[camera_angle_control]
 - Save the following sample code as a python file, and execute it. (`C:\oit\py26\ipbl\hula_vision_control.py`)
 - `hula_vision_control.py`
-    ```python
+```python
     import sys
     import time
     import cv2
@@ -350,11 +351,17 @@ Before performing any actual flight sequence, always execute these non-takeoff t
             print("Streaming active. Control gimbal using vision logic in non-blocking loop...")
             print("Press 'q' in the video window to stop.")
              
-            # --- Pure Video Capture Loop Control ---
+            # --- Video Capture and Control Loop ---
             while cap.isOpened():
                 ret, frame = cap.read()
+                
+                # Fetch keyboard state exactly once per frame
+                key_press = cv2.waitKey(1) & 0xFF
+                if key_press == ord('q'):
+                    print("Quit requested by user via OpenCV window.")
+                    break
+                
                 if not ret or frame is None:
-                    if cv2.waitKey(1) & 0xFF == ord('q'): break
                     continue
                  
                 current_msec = cap.get(cv2.CAP_PROP_POS_MSEC)
@@ -362,7 +369,7 @@ Before performing any actual flight sequence, always execute these non-takeoff t
                 # Trigger takeoff inside the loop on the first frame execution
                 if up_timer.start_time is None and down_timer.start_time is None:
                     print("\n--- Starting Takeoff Sequence ---")
-                    api.single_fly_takeoff()  # Blocks here for several seconds until safely airborne
+                    api.single_fly_takeoff()  # Blocks here until safely airborne
                     
                     # Fetch fresh timestamps right after takeoff to wipe out initialization lag
                     post_takeoff_msec = cap.get(cv2.CAP_PROP_POS_MSEC)
@@ -374,13 +381,10 @@ Before performing any actual flight sequence, always execute these non-takeoff t
                 is_up_detected = False
                 is_down_detected = False
                  
-                key_press = cv2.waitKey(1) & 0xFF
                 if key_press == ord('u'):    
                     is_up_detected = True
                 elif key_press == ord('d'):  
                     is_down_detected = True
-                elif key_press == ord('q'):
-                    break
 
                 up_reached = up_timer.update(is_up_detected, current_msec)
                 down_reached = down_timer.update(is_down_detected, current_msec)
